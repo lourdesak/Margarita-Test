@@ -65,15 +65,28 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
                       cylLV, "CylPV",
                       logicWorld, false, 0, true);
 
-//    new G4PVPlacement(rotX90,
-//                      G4ThreeVector(0., 0., 1.*m),
-//                      cylLV, "CylPV2",
-//                      logicWorld, false, 1, true);
-//
-//    new G4PVPlacement(rotX90,
-//                      G4ThreeVector(0., 0., 2.*m),
-//                      cylLV, "CylPV3",
-//                      logicWorld, false, 2, true);
+    new G4PVPlacement(
+        rotX90,
+        G4ThreeVector(0., 0., 1.*m),
+        cylLV,
+        "CylPV2",
+        logicWorld,
+        false,
+        1,
+        true
+    );
+
+    new G4PVPlacement(
+        rotX90,
+        G4ThreeVector(0., 0., 2.*m),
+        cylLV,
+        "CylPV3",
+        logicWorld,
+        false,
+        2,
+        true
+    );
+
     // --- END ADDED ---
     G4cout << "[Mat] World: " << logicWorld->GetMaterial()->GetName() << G4endl;
     G4cout << "[Mat] Cyl  : " << cylLV->GetMaterial()->GetName() << G4endl;
