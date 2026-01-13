@@ -1,0 +1,18 @@
+cat > .gitignore << 'EOF'
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Geant4/CMake build output
+**/build/
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/Makefile
+
+# ROOT output
+**/*.root
+
+# common binaries (adjust if yours differ)
+**/g4marg
+EOF

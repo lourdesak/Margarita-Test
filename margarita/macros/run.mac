@@ -1,0 +1,35 @@
+/control/echo === RUNNING: run.mac ===
+
+/control/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/gps/verbose 0
+
+/run/initialize
+
+/gps/particle mu-
+/gps/pos/type Plane
+/gps/pos/shape Circle
+/gps/pos/centre 0 0 1 m
+#/gps/pos/radius 1 cm
+/gps/pos/radius 3.65 cm
+/gps/direction 0 0 -1
+
+/gps/ene/type Lin
+/gps/ene/min 1 MeV
+/gps/ene/max 100 MeV
+/gps/ene/gradient 1
+/gps/ene/intercept 1
+
+/analysis/list
+/analysis/setFileName test01
+
+/analysis/h1/set 1 100 -10 110 MeV
+/analysis/h1/set 2 100   0   100 mm
+/analysis/h1/set 3 100   0   100 MeV
+/analysis/h1/set 4 100 -10 110 MeV
+
+
+/run/printProgress 10000
+/run/beamOn 100000
+
