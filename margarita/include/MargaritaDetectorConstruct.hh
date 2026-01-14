@@ -15,12 +15,10 @@ public:
     DetectorConstruction();
     ~DetectorConstruction();
 
-    virtual G4VPhysicalVolume* Construct();
+    virtual G4VPhysicalVolume* Construct(); //Strictly just for Paraview
     
-    //Strictly just for Paraview
 private:
-  G4VisAttributes* GetMaterialVisAttrib(const G4String& mName);
-    //End for paraview
+  G4VisAttributes* GetMaterialVisAttrib(const G4String& mName); //End for paraview
 };
 
 #endif

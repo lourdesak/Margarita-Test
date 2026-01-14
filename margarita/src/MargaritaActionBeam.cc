@@ -1,9 +1,7 @@
 #include "MargaritaActionBeam.hh"
-
 #include "MargaritaSteppingAction.hh"
 #include "MargaritaPrimaryGenerator.hh"
 #include "MargaritaRunAction.hh"
-#include "MargaritaTrackingAction.hh"
 
 ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
 
@@ -19,5 +17,4 @@ void ActionInitialization::Build() const {
 
   SetUserAction(new MargaritaPrimaryGenerator());
   SetUserAction(new MargaritaSteppingAction(runAction));
-  SetUserAction(new MargaritaTrackingAction());
 }

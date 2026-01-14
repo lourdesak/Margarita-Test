@@ -11,7 +11,7 @@ MargaritaPrimaryGenerator::~MargaritaPrimaryGenerator() {
 
 void MargaritaPrimaryGenerator::GeneratePrimaries(G4Event* event) {
     fGPS->GeneratePrimaryVertex(event);
-    // Access the single primary and print out the values in the start up log
+    // Sanity check: Access the single primary and print out the values in the start up log
     auto vtx  = event->GetPrimaryVertex();
     auto part = vtx->GetPrimary();
     

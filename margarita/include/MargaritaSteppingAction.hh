@@ -1,9 +1,8 @@
 #ifndef MARGARITA_STEPPING_ACTION_HH
 #define MARGARITA_STEPPING_ACTION_HH
 
-#include "G4UserSteppingAction.hh"  // base class
+#include "G4UserSteppingAction.hh"  
 
-// Forward declarations keep the header light
 class G4Step;
 class MargaritaRunAction;
 
@@ -19,4 +18,4 @@ private:
     MargaritaRunAction* fMargaritaRunAction = nullptr; // non-owning
 };
 
-#endif // MARGARITA_STEPPING_ACTION_HH
+#endif 

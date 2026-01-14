@@ -13,7 +13,7 @@ public:
   void GeneratePrimaries(G4Event* event) override;
 
 private:
-  G4GeneralParticleSource* fGPS;  // owned
+  G4GeneralParticleSource* fGPS;  // fGPS pointed under private to keep macro toggling clean and safe
 };
 
 #endif

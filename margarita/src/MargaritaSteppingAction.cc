@@ -9,5 +9,4 @@ MargaritaSteppingAction::~MargaritaSteppingAction() = default;
 
 void MargaritaSteppingAction::UserSteppingAction(const G4Step* /*aStep*/)
 {
-  // intentionally left blank — add step-level logic here later if needed
 }
