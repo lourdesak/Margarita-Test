@@ -32,11 +32,12 @@
 
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaActionBeam* eventAction,
                                                  MargaritaRunAction* runAction): G4UserSteppingAction(),
-  fEventAction(eventAction),
-  fRunAction(runAction)
+  fMargaritaActionBeam(eventAction),
+  fMargaritaRunAction(runAction)
 {
 }
 
@@ -52,8 +53,8 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* theStep)
 
     // Get PDG encoding and filter out neutrinos
     G4int pdg = abs(theStep->GetTrack()->GetDefinition()->GetPDGEncoding());
-    if (pdg == 12 || pdg == 14 || pdg == 16) return; // Don't save neutrino info
-
+    if (pdg == 12 || pdg == 14 || pdg == 16) return; // Don't save neutrino info, just following formatting eventhough no neutrinos here
+    // Remove above line if pdg causes issues
     // Get volume names
     std::string preStepPointName = 
         theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
@@ -80,7 +81,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* theStep)
         G4double kineticEnergy = theStep->GetPreStepPoint()->GetKineticEnergy();
 
         // Write to output file
-        std::ofstream& outFile = fRunAction->GetOutputStream();
+        std::ofstream& outFile = frunAction->GetOutputStream();
         if (outFile.is_open()) {
             outFile << eventID << ","
                     << trackID << ","

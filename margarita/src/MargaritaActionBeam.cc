@@ -8,7 +8,7 @@ ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
 ActionInitialization::~ActionInitialization() {}
 void ActionInitialization::BuildForMaster() const
 {
-  SetUserAction(new MargaritaRunAction);
+  SetUserAction(new MargaritaSteppingAction(eventAction, runAction));
 }
 
 void ActionInitialization::Build() const {
@@ -16,5 +16,5 @@ void ActionInitialization::Build() const {
   SetUserAction(runAction);
 
   SetUserAction(new MargaritaPrimaryGenerator());
-  SetUserAction(new MargaritaSteppingAction(runAction));
+  SetUserAction(new MargaritaSteppingAction(eventAction, runAction));
 }
