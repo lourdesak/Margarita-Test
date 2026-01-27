@@ -34,15 +34,9 @@
 #include <iostream>
 #include <fstream>
 
-MargaritaSteppingAction::MargaritaSteppingAction(MargaritaActionBeam* eventAction,
-                                                 MargaritaRunAction* runAction): G4UserSteppingAction(),
-  fMargaritaActionBeam(eventAction),
-  fMargaritaRunAction(runAction)
+MargaritaSteppingAction::MargaritaSteppingAction( MargaritaRunAction* run)
 {
-}
-
-MargaritaSteppingAction::~MargaritaSteppingAction() 
-{
+    frunAction = run;
 }
 
 void MargaritaSteppingAction::UserSteppingAction(const G4Step* theStep)
@@ -81,23 +75,21 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* theStep)
         G4double kineticEnergy = theStep->GetPreStepPoint()->GetKineticEnergy();
 
         // Write to output file
-        std::ofstream& outFile = frunAction->GetOutputStream();
-        if (outFile.is_open()) {
-            outFile << eventID << ","
-                    << trackID << ","
-                    << parentID << ","
-                    << pdg << ","
-                    << stepNo << ","
-                    << std::fixed << std::setprecision(4)
-                    << position.x()/mm << ","
-                    << position.y()/mm << ","
-                    << position.z()/mm << ","
-                    << momentum.x()/MeV << ","
-                    << momentum.y()/MeV << ","
-                    << momentum.z()/MeV << ","
-                    << kineticEnergy/MeV
-                    << std::endl;
+        // std::ofstream& outFile = frunAction->GetOutputStream();
+        // if (outFile.is_open()) {
+        //     outFile << eventID << ","
+        //             << trackID << ","
+        //             << parentID << ","
+        //             << pdg << ","
+        //             << stepNo << ","
+        //             << std::fixed << std::setprecision(4)
+        //             << position.x()/mm << ","
+        //             << position.y()/mm << ","
+        //             << position.z()/mm << ","
+        //             << momentum.x()/MeV << ","
+        //             << momentum.y()/MeV << ","
+        //             << momentum.z()/MeV << ","
+        //             << kineticEnergy/MeV
+        //             << std::endl;
         }
     }
-}
-

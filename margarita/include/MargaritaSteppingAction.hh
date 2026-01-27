@@ -8,7 +8,7 @@ class MargaritaRunAction;
 
 class MargaritaSteppingAction : public G4UserSteppingAction {
 public:
-  explicit MargaritaSteppingAction(MargaritaRunAction* runAction);
+  explicit MargaritaSteppingAction(MargaritaRunAction* run);
 
   void UserSteppingAction(const G4Step* step) override;
 
