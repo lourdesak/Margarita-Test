@@ -4,17 +4,19 @@
 #include "MargaritaRunAction.hh"
 
 ActionInitialization::ActionInitialization() : G4VUserActionInitialization() {}
-
 ActionInitialization::~ActionInitialization() {}
+
 void ActionInitialization::BuildForMaster() const
 {
-  SetUserAction(new MargaritaSteppingAction(eventAction, runAction));
+  auto runAction = new MargaritaRunAction();
+  SetUserAction(runAction);
 }
 
-void ActionInitialization::Build() const {
+void ActionInitialization::Build() const
+{
   auto runAction = new MargaritaRunAction();
   SetUserAction(runAction);
 
   SetUserAction(new MargaritaPrimaryGenerator());
-  SetUserAction(new MargaritaSteppingAction(eventAction, runAction));
+  SetUserAction(new MargaritaSteppingAction(runAction));
 }
