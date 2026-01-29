@@ -22,7 +22,7 @@
 /gps/ene/intercept 1
 
 /analysis/list
-/analysis/setFileName test01
+/analysis/setFileName root
 
 /analysis/h1/set 1 100 -10 110 MeV
 /analysis/h1/set 2 100   0   100 mm

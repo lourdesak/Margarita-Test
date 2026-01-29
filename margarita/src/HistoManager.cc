@@ -1,6 +1,6 @@
 #include "HistoManager.hh"
 #include "G4UnitsTable.hh"
-#include "G4AnalysisManager.hh"   // <-- needed for G4AnalysisManager
+#include "G4AnalysisManager.hh"   
 
 HistoManager::HistoManager() : fFileName("g4marg")
 {
@@ -25,16 +25,6 @@ void HistoManager::Book()
   // Beam Stuff
   analysis->SetHistoDirectoryName("histo");
   analysis->SetFirstHistoId(1);
-
-  // --- Removed the four initial Beam H1s so that the Stopping Muon H1s take IDs 1..4 ---
-  // G4int id = analysis->CreateH1("h1.1", "KE of primary muons", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.2", "vertex dist dN/dv = f(r)", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.3", "direction: cos(theta)", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.4", "direction: phi", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
 
   // histos 2D (unchanged)
   G4int id = analysis->CreateH2("h2.1", "vertex: XY", nbins, vmin, vmax, nbins, vmin, vmax);

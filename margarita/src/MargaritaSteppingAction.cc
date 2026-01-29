@@ -21,7 +21,6 @@
 #include "MargaritaSteppingAction.hh"
 #include "MargaritaActionBeam.hh"
 #include "MargaritaRunAction.hh"
-
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4Event.hh"
@@ -29,6 +28,11 @@
 #include "G4SystemOfUnits.hh"
 #include "G4EventManager.hh"
 #include "G4TrackingManager.hh"
+
+
+#include "HistoManager.hh"
+#include "G4TrackingManager.hh"
+#include "G4PhysicalConstants.hh"
 
 #include <iomanip>
 #include <iostream>
@@ -39,57 +43,73 @@ MargaritaSteppingAction::MargaritaSteppingAction( MargaritaRunAction* run)
     frunAction = run;
 }
 
-void MargaritaSteppingAction::UserSteppingAction(const G4Step* theStep)
+void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
-    // Check for NULL volumes
-    if(theStep->GetPreStepPoint()->GetPhysicalVolume() == NULL || 
-       theStep->GetPostStepPoint()->GetPhysicalVolume() == NULL) return;
+  // Handles
+  G4StepPoint* pre  = aStep->GetPreStepPoint();
+  G4StepPoint* post = aStep->GetPostStepPoint();
+  G4Track*     trk  = aStep->GetTrack();
 
-    // Get PDG encoding and filter out neutrinos
-    G4int pdg = abs(theStep->GetTrack()->GetDefinition()->GetPDGEncoding());
-    if (pdg == 12 || pdg == 14 || pdg == 16) return; // Don't save neutrino info, just following formatting eventhough no neutrinos here
-    // Remove above line if pdg causes issues
-    // Get volume names
-    std::string preStepPointName = 
-        theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
-    std::string postStepPointName = 
-        theStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
+  // Volume at post-step
+  G4VPhysicalVolume* volPost =
+      post->GetTouchableHandle() ? post->GetTouchableHandle()->GetVolume() : nullptr;
+  if (!volPost) return;
 
-    // Check if step involves the cylinder detector volume
-    if ((preStepPointName == G4String("CylLV")) || (postStepPointName == G4String("CylLV")))
-    {
-        // Get track information
-        G4Track* track = theStep->GetTrack();
-        G4int eventID = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-        G4int trackID = track->GetTrackID();
-        G4int parentID = track->GetParentID();
-        G4int stepNo = track->GetCurrentStepNumber();
+  const G4String namePost = volPost->GetName();
 
-        // Get position at pre-step point
-        G4ThreeVector position = theStep->GetPreStepPoint()->GetPosition();
+  // Target volume name
+  static const G4String kTargetVolumeName = "CylPV";
 
-        // Get momentum at pre-step point
-        G4ThreeVector momentum = theStep->GetPreStepPoint()->GetMomentum();
+  // Particle selection: mu- only (PDG 13)
+  const G4int pdg = trk->GetDefinition()->GetPDGEncoding();
+  if (pdg != 13) return;
 
-        // Get kinetic energy at pre-step point
-        G4double kineticEnergy = theStep->GetPreStepPoint()->GetKineticEnergy();
+  // Primaries only
+  if (trk->GetParentID() != 0) return;
 
-        // Write to output file
-        // std::ofstream& outFile = frunAction->GetOutputStream();
-        // if (outFile.is_open()) {
-        //     outFile << eventID << ","
-        //             << trackID << ","
-        //             << parentID << ","
-        //             << pdg << ","
-        //             << stepNo << ","
-        //             << std::fixed << std::setprecision(4)
-        //             << position.x()/mm << ","
-        //             << position.y()/mm << ","
-        //             << position.z()/mm << ","
-        //             << momentum.x()/MeV << ","
-        //             << momentum.y()/MeV << ","
-        //             << momentum.z()/MeV << ","
-        //             << kineticEnergy/MeV
-        //             << std::endl;
-        }
-    }
+  // Stop condition: inside target and KE ~ 0
+  const G4double eKinPost_step = post->GetKineticEnergy();
+  const G4double keEps         = 1.0*keV;
+  if (namePost != kTargetVolumeName || eKinPost_step > keEps) return;
+
+  // ---------------------------------------------------------
+  // Your stopping-muon recording block
+  // ---------------------------------------------------------
+  const G4int pdg_post = pdg; // or trk->GetDefinition()->GetPDGEncoding()
+
+  // Values at the end of track
+  const G4double eKinInit = trk->GetVertexKineticEnergy();   // initial KE of this primary
+  const G4double eKinPost = trk->GetKineticEnergy();         // KE at end (should be ~0 for full stop)
+  const auto     pos      = trk->GetPosition();              // position at end
+  const auto     momDir   = trk->GetMomentumDirection();     // direction at end
+
+  const G4double x     = pos.x();
+  const G4double y     = pos.y();
+  const G4double z     = pos.z();
+  const G4double costh = momDir.cosTheta(); // currently unused, kept for completeness
+
+  auto* am = G4AnalysisManager::Instance();
+
+  static const G4int kH1_KE_Stop_Id  = 1; // h3.1
+  static const G4int kH1_Z_Stop_Id   = 2; // h3.2
+  static const G4int kH1_InitKE_Id   = 4; // h3.4
+  static const G4int kH2_XY_Stop_Id  = 6; // h3.5
+
+  am->FillH1(kH1_KE_Stop_Id, eKinPost);
+  am->FillH1(kH1_Z_Stop_Id,  z);
+  am->FillH1(kH1_InitKE_Id,  eKinInit);
+  am->FillH2(kH2_XY_Stop_Id, x, y);
+
+  const G4int nt = 1;
+  am->FillNtupleIColumn(nt, 0, pdg_post);
+  am->FillNtupleDColumn(nt, 1, eKinInit);
+  am->FillNtupleDColumn(nt, 2, eKinPost);
+  am->FillNtupleDColumn(nt, 3, x);
+  am->FillNtupleDColumn(nt, 4, y);
+  am->FillNtupleDColumn(nt, 5, z);
+  am->FillNtupleDColumn(nt, 6, momDir.x());
+  am->FillNtupleDColumn(nt, 7, momDir.y());
+  am->FillNtupleDColumn(nt, 8, momDir.z());
+  am->AddNtupleRow(nt);
+}
+
