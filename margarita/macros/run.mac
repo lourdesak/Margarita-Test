@@ -1,8 +1,8 @@
 /control/echo === RUNNING: run.mac ===
 
-/control/verbose 0
-/tracking/verbose 0
-/event/verbose 0
+/control/verbose 1
+/tracking/verbose 1
+/event/verbose 1
 /gps/verbose 0
 
 /run/initialize
@@ -21,15 +21,23 @@
 /gps/ene/gradient 1
 /gps/ene/intercept 1
 
+#Beam stuff
 /analysis/list
 /analysis/setFileName root
+/analysis/h1/set 1 100 1 30 MeV
+/analysis/h1/set 3 110 -1.1 1.1 none  #cos(theta)
+/analysis/h1/set 4 130 -15  375 deg   #phi
+/analysis/h2/set 1 100 -5 5 cm none linear 100 -5 5 cm none linear #x-y
+/analysis/h2/set 4 120 0 360 deg none linear 100 -1 1 none none linear
 
-/analysis/h1/set 1 100 -10 110 MeV
-/analysis/h1/set 2 100   0   100 mm
-/analysis/h1/set 3 100   0   100 MeV
-/analysis/h1/set 4 100 -10 110 MeV
+#Stopping Muons stuff
+/analysis/h1/set 5 200   -20    20  MeV
+/analysis/h1/set 6 200  -100 100 mm
+/analysis/h1/set 7 100   -1     1   none
+/analysis/h2/set 6 120  -100 100 mm none linear  120 -100 100 mm none linear
+/analysis/h1/set 8 200     0   50  MeV   # NEW: Initial KE of stopped muons
 
 
 /run/printProgress 10000
-/run/beamOn 100000
+/run/beamOn 100
 
