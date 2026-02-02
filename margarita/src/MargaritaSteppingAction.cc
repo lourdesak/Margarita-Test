@@ -86,8 +86,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double x     = pos.x();
   const G4double y     = pos.y();
   const G4double z     = pos.z();
-  const G4double costh = momDir.cosTheta(); // currently unused, kept for completeness
-
+  
   auto* am = G4AnalysisManager::Instance();
 
   static const G4int kH1_KE_Stop_Id  = 1; // h3.1
