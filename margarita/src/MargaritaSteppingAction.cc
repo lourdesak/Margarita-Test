@@ -73,7 +73,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   if (namePost != kTargetVolumeName || eKinPost_step > keEps) return;
 
   // ---------------------------------------------------------
-  // Your stopping-muon recording block
+  // Stopping-muon recording block
   // ---------------------------------------------------------
   const G4int pdg_post = pdg; // or trk->GetDefinition()->GetPDGEncoding()
 
@@ -86,18 +86,20 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double x     = pos.x();
   const G4double y     = pos.y();
   const G4double z     = pos.z();
-  
+
   auto* am = G4AnalysisManager::Instance();
 
-  static const G4int kH1_KE_Stop_Id  = 1; // h3.1
-  static const G4int kH1_Z_Stop_Id   = 2; // h3.2
-  static const G4int kH1_InitKE_Id   = 4; // h3.4
-  static const G4int kH2_XY_Stop_Id  = 6; // h3.5
+  static const G4int kH1_KE_Stop_Id  = 1; // h1.1
+  static const G4int kH1_Z_Stop_Id   = 2; // h1.2
+  static const G4int kH2_XY_Stop_Id  = 3; // h2.3
+  static const G4int kH1_InitKE_Id   = 4; // h1.4
+
 
   am->FillH1(kH1_KE_Stop_Id, eKinPost);
   am->FillH1(kH1_Z_Stop_Id,  z);
-  am->FillH1(kH1_InitKE_Id,  eKinInit);
   am->FillH2(kH2_XY_Stop_Id, x, y);
+  am->FillH1(kH1_InitKE_Id,  eKinInit);
+
 
   const G4int nt = 1;
   am->FillNtupleIColumn(nt, 0, pdg_post);

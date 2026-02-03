@@ -24,18 +24,12 @@
 #Beam stuff
 /analysis/list
 /analysis/setFileName root
-/analysis/h1/set 1 100 1 30 MeV
-/analysis/h1/set 3 110 -1.1 1.1 none  #cos(theta)
-/analysis/h1/set 4 130 -15  375 deg   #phi
-/analysis/h2/set 1 100 -5 5 cm none linear 100 -5 5 cm none linear #x-y
-/analysis/h2/set 4 120 0 360 deg none linear 100 -1 1 none none linear
 
 #Stopping Muons stuff
-/analysis/h1/set 5 200   -20    20  MeV
-/analysis/h1/set 6 200  -100 100 mm
-/analysis/h1/set 7 100   -1     1   none
-/analysis/h2/set 6 120  -100 100 mm none linear  120 -100 100 mm none linear
-/analysis/h1/set 8 200     0   50  MeV   # NEW: Initial KE of stopped muons
+/analysis/h1/set 1 200   -20    20  MeV
+/analysis/h1/set 2 200  -100 100 mm
+/analysis/h2/set 3 120  -100 100 mm none linear  120 -100 100 mm none linear
+/analysis/h1/set 4 200     0   50  MeV   # NEW: Initial KE of stopped muons
 
 
 /run/printProgress 10000
