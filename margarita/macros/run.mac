@@ -15,12 +15,14 @@
 /gps/pos/radius 3.65 cm
 /gps/direction 0 0 -1
 
-/gps/ene/type Lin
-/gps/ene/min 1 MeV
-/gps/ene/max 30 MeV
-/gps/ene/gradient 1
-/gps/ene/intercept 1
+/gps/number 1
+/gps/ene/type Mono
+/gps/ene/mono 10 MeV
+
+
+#/gps/ene/gradient 1
+#/gps/ene/intercept 1
 
 /run/printProgress 10000
-/run/beamOn 100
+/run/beamOn 1
 
