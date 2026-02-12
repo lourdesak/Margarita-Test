@@ -45,6 +45,6 @@ int main(int argc, char** argv)
 //    UImanager->ApplyCommand("/gps/pos/centre 0 0 0 * CLHEP::m");
 //    UImanager->ApplyCommand("/gps/pos/radius 3.65 * CLHEP::cm");
     
-    ui->SessionStart();
+    //ui->SessionStart();
     return 0;
 }

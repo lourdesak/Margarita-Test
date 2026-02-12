@@ -21,17 +21,6 @@
 /gps/ene/gradient 1
 /gps/ene/intercept 1
 
-#Beam stuff
-/analysis/list
-/analysis/setFileName root
-
-#Stopping Muons stuff
-/analysis/h1/set 1 200   -20    20  MeV
-/analysis/h1/set 2 200  -100 100 mm
-/analysis/h2/set 3 120  -100 100 mm none linear  120 -100 100 mm none linear
-/analysis/h1/set 4 200     0   50  MeV   # NEW: Initial KE of stopped muons
-
-
 /run/printProgress 10000
-/run/beamOn 100
+/run/beamOn 1000
 

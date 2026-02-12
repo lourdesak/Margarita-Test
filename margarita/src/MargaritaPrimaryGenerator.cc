@@ -17,6 +17,6 @@ void MargaritaPrimaryGenerator::GeneratePrimaries(G4Event* event) {
     
     if (part) {
         G4double ke = part->GetKineticEnergy();
-        G4cout << "Muon KE: " << ke/CLHEP::MeV << " MeV" << G4endl;
+        //G4cout << "Muon KE: " << ke/CLHEP::MeV << " MeV" << G4endl;
     }
 }

@@ -26,12 +26,14 @@ void HistoManager::Book()
   analysis->SetFirstHistoId(1);
 
   // Stopping Muons stuff
-  G4int id = analysis->CreateH1("h1.1", "Stop: KE;E_{kin} [MeV];counts", 200, -50., 50.);       // id = 1
+  G4int id = analysis->CreateH1("h1.1", "Stop: E_{kin} [MeV]", 200, -50., 50.);       // id = 1
   analysis->SetH1Activation(id, true);
-  id = analysis->CreateH1("h1.2", "Stop: Z;z [mm];counts", 200, -100, 100);                 // id = 2
+  id = analysis->CreateH1("h1.2", "Stop: Z[mm]", 200, -100, 100);                 // id = 2
   analysis->SetH1Activation(id, true);
-  id = analysis->CreateH2("h2.3", "Stop: XY;x [mm];y [mm]", 120, -50., 50., 120, -50., 50.);    // id = 3
-  analysis->SetH2Activation(id, true);     
-  id = analysis->CreateH1("h1.4", "Stop: Initial KE;E_{kin}^{init} [MeV];counts", 200, 0., 50.);// id = 4
+  id = analysis->CreateH2("h2.1", "Stop: XY;x [mm];y [mm]", 120, -50., 50., 120, -50., 50.);    // id = 3
+  analysis->SetH2Activation(id, true);   
+  id = analysis->CreateH1("h1.3", "Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.);   // id = 4
   analysis->SetH1Activation(id, true);
+  
+
 }

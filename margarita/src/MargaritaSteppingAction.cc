@@ -31,6 +31,7 @@
 
 
 #include "HistoManager.hh"
+#include "G4AnalysisManager.hh"
 #include "G4TrackingManager.hh"
 #include "G4PhysicalConstants.hh"
 
@@ -46,7 +47,6 @@ MargaritaSteppingAction::MargaritaSteppingAction( MargaritaRunAction* run)
 void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   // Handles
-  G4StepPoint* pre  = aStep->GetPreStepPoint();
   G4StepPoint* post = aStep->GetPostStepPoint();
   G4Track*     trk  = aStep->GetTrack();
 
@@ -72,45 +72,22 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double keEps         = 1.0*keV;
   if (namePost != kTargetVolumeName || eKinPost_step > keEps) return;
 
-  // ---------------------------------------------------------
-  // Stopping-muon recording block
-  // ---------------------------------------------------------
-  const G4int pdg_post = pdg; // or trk->GetDefinition()->GetPDGEncoding()
-
-  // Values at the end of track
   const G4double eKinInit = trk->GetVertexKineticEnergy();   // initial KE of this primary
-  const G4double eKinPost = trk->GetKineticEnergy();         // KE at end (should be ~0 for full stop)
-  const auto     pos      = trk->GetPosition();              // position at end
-  const auto     momDir   = trk->GetMomentumDirection();     // direction at end
+  const auto     posPost = post->GetPosition();
+  const G4double x       = posPost.x();
+  const G4double y       = posPost.y();
+  const G4double z       = posPost.z();
 
-  const G4double x     = pos.x();
-  const G4double y     = pos.y();
-  const G4double z     = pos.z();
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-  auto* am = G4AnalysisManager::Instance();
+  static const G4int kH1_KE_Stop_Id  = 1; 
+  static const G4int kH1_Z_Stop_Id   = 2; 
+  static const G4int kH2_XY_Stop_Id  = 1; 
+  static const G4int kH1_InitKE_Id   = 3; 
 
-  static const G4int kH1_KE_Stop_Id  = 1; // h1.1
-  static const G4int kH1_Z_Stop_Id   = 2; // h1.2
-  static const G4int kH2_XY_Stop_Id  = 3; // h2.3
-  static const G4int kH1_InitKE_Id   = 4; // h1.4
-
-
-  am->FillH1(kH1_KE_Stop_Id, eKinPost);
-  am->FillH1(kH1_Z_Stop_Id,  z);
-  am->FillH2(kH2_XY_Stop_Id, x, y);
-  am->FillH1(kH1_InitKE_Id,  eKinInit);
-
-
-  const G4int nt = 1;
-  am->FillNtupleIColumn(nt, 0, pdg_post);
-  am->FillNtupleDColumn(nt, 1, eKinInit);
-  am->FillNtupleDColumn(nt, 2, eKinPost);
-  am->FillNtupleDColumn(nt, 3, x);
-  am->FillNtupleDColumn(nt, 4, y);
-  am->FillNtupleDColumn(nt, 5, z);
-  am->FillNtupleDColumn(nt, 6, momDir.x());
-  am->FillNtupleDColumn(nt, 7, momDir.y());
-  am->FillNtupleDColumn(nt, 8, momDir.z());
-  am->AddNtupleRow(nt);
+  analysisManager->FillH1(kH1_KE_Stop_Id, eKinPost_step);
+  analysisManager->FillH1(kH1_Z_Stop_Id,  z);
+  analysisManager->FillH2(kH2_XY_Stop_Id, x, y);
+  analysisManager->FillH1(kH1_InitKE_Id,  eKinInit);
 }
 
