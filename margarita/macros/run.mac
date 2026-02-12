@@ -17,10 +17,10 @@
 
 /gps/ene/type Lin
 /gps/ene/min 1 MeV
-/gps/ene/max 100 MeV
+/gps/ene/max 30 MeV
 /gps/ene/gradient 1
 /gps/ene/intercept 1
 
 /run/printProgress 10000
-/run/beamOn 1000
+/run/beamOn 100
 
