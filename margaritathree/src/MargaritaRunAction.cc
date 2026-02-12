@@ -14,8 +14,7 @@ MargaritaRunAction::~MargaritaRunAction()
 
 void MargaritaRunAction::BeginOfRunAction(const G4Run*)
 {
-  // histograms
-  //
+  // Histograms
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if (analysisManager->IsActive()) {
     analysisManager->OpenFile();
@@ -24,8 +23,7 @@ void MargaritaRunAction::BeginOfRunAction(const G4Run*)
 
 void MargaritaRunAction::EndOfRunAction(const G4Run*)
 {
-  // save histograms
-  //
+  // Save histograms
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if (analysisManager->IsActive()) {
     analysisManager->Write();

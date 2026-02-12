@@ -1,12 +1,12 @@
 #include "HistoManager.hh"
 #include "G4UnitsTable.hh"
-#include "G4AnalysisManager.hh"   // <-- needed for G4AnalysisManager
+#include "G4AnalysisManager.hh"
+#include "G4SystemOfUnits.hh"
 
 HistoManager::HistoManager() : fFileName("g4marg")
 {
   Book();
 }
-
 HistoManager::~HistoManager() {}
 
 void HistoManager::Book()
@@ -18,89 +18,54 @@ void HistoManager::Book()
   analysis->SetVerboseLevel(1);
   analysis->SetActivation(true);
 
-  G4int nbins = 100;
-  G4double vmin = 0.;
-  G4double vmax = 100.;
-
-  // Beam Stuff
+  // Directories / IDs
   analysis->SetHistoDirectoryName("histo");
-  analysis->SetFirstHistoId(1);
+  analysis->SetFirstHistoId(1);  // H1 ids start at 1
 
-  // --- Removed the four initial Beam H1s so that the Stopping Muon H1s take IDs 1..4 ---
-  // G4int id = analysis->CreateH1("h1.1", "KE of primary muons", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.2", "vertex dist dN/dv = f(r)", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.3", "direction: cos(theta)", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
-  // id = analysis->CreateH1("h1.4", "direction: phi", nbins, vmin, vmax);
-  // analysis->SetH1Activation(id, false);
+  // ---- 12 histograms total: 4 per cylinder x 3 cylinders ----
+  // Cylinder 1 (CylPV):   H1 ids 1,2,3 and H2 id 1
+  // Cylinder 2 (CylPV2):  H1 ids 4,5,6 and H2 id 2
+  // Cylinder 3 (CylPV3):  H1 ids 7,8,9 and H2 id 3
 
-  // histos 2D (unchanged)
-  G4int id = analysis->CreateH2("h2.1", "vertex: XY", nbins, vmin, vmax, nbins, vmin, vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.2", "vertex: YZ", nbins, vmin, vmax, nbins, vmin, vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.3", "vertex: ZX", nbins, vmin, vmax, nbins, vmin, vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.4", "direction: phi-cos(theta)", nbins, vmin, vmax, nbins, vmin, vmax);
-  analysis->SetH2Activation(id, false);
-
-  id = analysis->CreateH2("h2.5", "direction: phi-theta", nbins, vmin, vmax, nbins, vmin, vmax);
-  analysis->SetH2Activation(id, false);
-
-  // Stopping Muons stuff
-  // After removing the four initial H1s above, the following H1s become IDs 1..4:
-  id = analysis->CreateH1("h3.1", "Stop: KE;E_{kin} [MeV];counts", 200, -50., 50.); // id = 1
+  // ---------------- CylPV ----------------
+  G4int id = analysis->CreateH1("h1.1", "CylPV Stop: E_{kin} [MeV]", 200, -50., 50.); // H1 id=1
   analysis->SetH1Activation(id, true);
 
-  id = analysis->CreateH1("h3.2", "Stop: Z;z [mm];counts", 200, -1000., 1000.);   // id = 2
+  id = analysis->CreateH1("h1.2", "CylPV Stop: Z [mm]", 200, -50., 50.);           // H1 id=2
   analysis->SetH1Activation(id, true);
 
-//  id = analysis->CreateH1("h3.3", "Stop: cos#theta;cos#theta;counts", 100, -1., 1.); // id = 3
-//  analysis->SetH1Activation(id, true);
+  id = analysis->CreateH2("h2.1", "CylPV Stop: XY;x [mm];y [mm]",
+                          120, -50., 50., 120, -50., 50.);                           // H2 id=1
+  analysis->SetH2Activation(id, true);
 
-  id = analysis->CreateH1("h3.4", "Stop: Initial KE;E_{kin}^{init} [MeV];counts",
-                          200, 0., 50.);                                             // id = 4
+  id = analysis->CreateH1("h1.3", "CylPV Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.); // H1 id=3
   analysis->SetH1Activation(id, true);
 
-  // Extra H2 (unchanged)
-  id = analysis->CreateH2("h3.5", "Stop: XY;x [mm];y [mm]",
-                          120, -50., 50., 120, -50., 50.);
-  analysis->SetH2Activation(id, true);     // H2 id continues after h2.5
+  // ---------------- CylPV2 ----------------
+  id = analysis->CreateH1("h1.4", "CylPV2 Stop: E_{kin} [MeV]", 200, -50., 50.);     // H1 id=4
+  analysis->SetH1Activation(id, true);
 
-  // nTuples for Beam stuff (unchanged)
-  analysis->SetNtupleDirectoryName("ntuple");
-  analysis->SetFirstNtupleId(1);
+  id = analysis->CreateH1("h1.5", "CylPV2 Stop: Z [mm]", 200, -50., 50.);          // H1 id=5
+  analysis->SetH1Activation(id, true);
 
-  analysis->CreateNtuple("101", "Primary Particle Tuple");
-  analysis->CreateNtupleIColumn("particleID");   // 0
-  analysis->CreateNtupleDColumn("Ekin");         // 1
-  analysis->CreateNtupleDColumn("posX");         // 2
-  analysis->CreateNtupleDColumn("posY");         // 3
-  analysis->CreateNtupleDColumn("posZ");         // 4
-  analysis->CreateNtupleDColumn("dirTheta");     // 5
-  analysis->CreateNtupleDColumn("dirPhi");       // 6
-  analysis->CreateNtupleDColumn("weight");       // 7
-  analysis->FinishNtuple();
+  id = analysis->CreateH2("h2.2", "CylPV2 Stop: XY;x [mm];y [mm]",
+                          120, -50., 50., 120, -50., 50.);                           // H2 id=2
+  analysis->SetH2Activation(id, true);
 
-  analysis->SetNtupleActivation(true);
+  id = analysis->CreateH1("h1.6", "CylPV2 Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.); // H1 id=6
+  analysis->SetH1Activation(id, true);
 
-  // nTuples for Stopping Muon stuff (unchanged)
-  analysis->CreateNtuple("201", "Stopped primary mu-");
-  analysis->CreateNtupleDColumn("eKin");       // 0  (KE at stop)
-  analysis->CreateNtupleDColumn("posX");       // 1
-  analysis->CreateNtupleDColumn("posY");       // 2
-  analysis->CreateNtupleDColumn("posZ");       // 3
-  analysis->CreateNtupleDColumn("momX");       // 4
-  analysis->CreateNtupleDColumn("momY");       // 5
-  analysis->CreateNtupleDColumn("momZ");       // 6
-  analysis->CreateNtupleIColumn("pdg");        // 7
-  analysis->CreateNtupleDColumn("ekin_init");  // 8
-  analysis->FinishNtuple();
+  // ---------------- CylPV3 ----------------
+  id = analysis->CreateH1("h1.7", "CylPV3 Stop: E_{kin} [MeV]", 200, -50., 50.);     // H1 id=7
+  analysis->SetH1Activation(id, true);
 
-  analysis->SetNtupleActivation(false);
+  id = analysis->CreateH1("h1.8", "CylPV3 Stop: Z [mm]", 200, -50., 50.);          // H1 id=8
+  analysis->SetH1Activation(id, true);
+
+  id = analysis->CreateH2("h2.3", "CylPV3 Stop: XY;x [mm];y [mm]",
+                          120, -50., 50., 120, -50., 50.);                           // H2 id=3
+  analysis->SetH2Activation(id, true);
+
+  id = analysis->CreateH1("h1.9", "CylPV3 Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.); // H1 id=9
+  analysis->SetH1Activation(id, true);
 }

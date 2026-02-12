@@ -17,19 +17,13 @@
 
 /gps/ene/type Lin
 /gps/ene/min 1 MeV
-/gps/ene/max 1000 MeV
+/gps/ene/max 100 MeV
 /gps/ene/gradient 1
 /gps/ene/intercept 1
 
 /analysis/list
 /analysis/setFileName test01
 
-/analysis/h1/set 1 100 -10 110 MeV
-/analysis/h1/set 2 100   0   100 mm
-/analysis/h1/set 3 100   0   100 MeV
-/analysis/h1/set 4 100 -10 110 MeV
-
-
 /run/printProgress 10000
-/run/beamOn 100000
+/run/beamOn 1000
 

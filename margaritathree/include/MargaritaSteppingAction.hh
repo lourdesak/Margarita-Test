@@ -1,22 +1,20 @@
 #ifndef MARGARITA_STEPPING_ACTION_HH
 #define MARGARITA_STEPPING_ACTION_HH
 
-#include "G4UserSteppingAction.hh"  // base class
+#include "G4UserSteppingAction.hh"
 
-// Forward declarations keep the header light
 class G4Step;
 class MargaritaRunAction;
 
 class MargaritaSteppingAction : public G4UserSteppingAction {
 public:
-    
-  explicit MargaritaSteppingAction(MargaritaRunAction* runAction);
-  ~MargaritaSteppingAction() override;
+    MargaritaSteppingAction(MargaritaRunAction* run);
+    ~MargaritaSteppingAction();   
 
   void UserSteppingAction(const G4Step* step) override;
 
 private:
-    MargaritaRunAction* fMargaritaRunAction = nullptr; // non-owning
+  MargaritaRunAction* frunAction = nullptr; // non-owning
 };
 
-#endif // MARGARITA_STEPPING_ACTION_HH
+#endif
