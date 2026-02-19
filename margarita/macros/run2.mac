@@ -17,12 +17,12 @@
 
 /gps/number 1
 /gps/ene/type Mono
-/gps/ene/mono 30 MeV
+/gps/ene/mono 10 MeV
 
 
 #/gps/ene/gradient 1
 #/gps/ene/intercept 1
 
 /run/printProgress 10000
-/run/beamOn 1000
+/run/beamOn 1
 

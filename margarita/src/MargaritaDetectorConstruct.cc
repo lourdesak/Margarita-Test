@@ -21,7 +21,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4Material* worldMat = nist->FindOrBuildMaterial("G4_AIR");
 
     // World solid (1 m cube)
-    G4Box* WorldVol = new G4Box("WorldVol", 5 * m, 5 * m, 10 * m); //Half-meas so 10x10x20m cube
+    G4Box* WorldVol = new G4Box("WorldVol", 10 * m, 10 * m, 20 * m); //Half-meas so 1x1x2m cube
 
     // World logical volume
     G4LogicalVolume* logicWorld = new G4LogicalVolume(WorldVol,worldMat,"logicWorld");
@@ -44,7 +44,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     rotX90->rotateX(90.*deg);       // +90° about X (Tubs axis Z -> points along -Y)
     new G4PVPlacement(rotX90,                     // rotation
                       G4ThreeVector(0.,0.,0*m), 
-                      //G4ThreeVector(0.,0.,2.5*m), // position
                       cylLV, "CylPV",
                       logicWorld, false, 0, true);
 
