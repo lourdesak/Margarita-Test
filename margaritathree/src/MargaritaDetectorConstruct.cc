@@ -26,7 +26,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4Material* worldMat = nist->FindOrBuildMaterial("G4_AIR");
 
     // World solid (1 m cube)
-    G4Box* WorldVol = new G4Box("WorldVol", 5 * m, 5 * m, 10 * m); //Half-meas so 10x10x20m cube
+    G4Box* WorldVol = new G4Box("WorldVol", 1 * m, 1 * m, 3 * m); //Half-meas so 10x10x20m cube
 
     // World logical volume
     G4LogicalVolume* logicWorld = new G4LogicalVolume(WorldVol,

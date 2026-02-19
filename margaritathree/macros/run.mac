@@ -13,7 +13,7 @@
 /gps/pos/centre 0 0 1 m
 #/gps/pos/radius 1 cm
 /gps/pos/radius 3.65 cm
-/gps/direction 0 0 -1
+/gps/direction 0 0 1
 
 /gps/ene/type Lin
 /gps/ene/min 1 MeV
