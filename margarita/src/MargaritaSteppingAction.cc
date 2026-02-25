@@ -29,7 +29,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4String namePost = volPost->GetName();
 
   // Select which cylinder we are in
-  // idx = 0 -> CylPV, idx = 1 -> CylPV2, idx = 2 -> CylPV3
   int idx = -1;
   if      (namePost == "CylPV")  idx = 0;
   else if (namePost == "CylPV2") idx = 1;
@@ -48,6 +47,9 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double keEps         = 1.0 * keV;
   if (eKinPost_step > keEps) return;
 
+  // If this track is already being terminated, don't count it again
+  if (trk->GetTrackStatus() == fStopAndKill) return;
+
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
   const auto     posPost  = post->GetPosition();
@@ -56,16 +58,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double z        = posPost.z();
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-  // IMPORTANT: These IDs must match what you CreateH1/CreateH2 in HistoManager.
-  //
-  // We assume you will create 12 histograms total, in this order:
-  // CylPV:   H1(KEstop)=1, H1(Z)=2, H2(XY)=1, H1(InitKE)=3   (example layout below uses per-cylinder blocks)
-  //
-  // A clean scheme is per-cylinder blocks:
-  // Cylinder 0 (CylPV):   H1 ids 1,2,3 and H2 id 1
-  // Cylinder 1 (CylPV2):  H1 ids 4,5,6 and H2 id 2
-  // Cylinder 2 (CylPV3):  H1 ids 7,8,9 and H2 id 3
 
   const std::array<G4int,3> h1_keStop  = {1, 4, 7};
   const std::array<G4int,3> h1_zStop   = {2, 5, 8};
@@ -76,4 +68,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   analysisManager->FillH1(h1_zStop[idx],  z);
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
+
+  // Ensure this muon cannot be counted again on subsequent steps
+  trk->SetTrackStatus(fStopAndKill);
 }
