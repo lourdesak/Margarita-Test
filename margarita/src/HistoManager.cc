@@ -34,6 +34,7 @@ void HistoManager::Book()
   analysis->SetH2Activation(id, true);   
   id = analysis->CreateH1("h1.3", "Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.);   // id = 4
   analysis->SetH1Activation(id, true);
-  
+  // id = analysis->CreateH1("h1.4", "Stopping efficiency vs. time", 200, 0., 50.);   // id = 5
+  // analysis->SetH1Activation(id, true);
 
 }

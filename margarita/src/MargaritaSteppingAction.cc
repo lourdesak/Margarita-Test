@@ -31,8 +31,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Select which cylinder we are in
   int idx = -1;
   if      (namePost == "CylPV")  idx = 0;
-  else if (namePost == "CylPV2") idx = 1;
-  else if (namePost == "CylPV3") idx = 2;
   else return;
 
   // Particle selection: mu- only (PDG 13)
