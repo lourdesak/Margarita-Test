@@ -11,6 +11,14 @@ MargaritaPrimaryGenerator::~MargaritaPrimaryGenerator() {
 
 void MargaritaPrimaryGenerator::GeneratePrimaries(G4Event* event) {
     fGPS->GeneratePrimaryVertex(event);
+
+    static G4long total = 0;
+
+    fGPS->GeneratePrimaryVertex(event);
+
+    total += 1;
+    G4cout << "Total primaries so far: " << total << G4endl;
+
     // Sanity check: Access the single primary and print out the values in the start up log
     auto vtx  = event->GetPrimaryVertex();
     auto part = vtx->GetPrimary();

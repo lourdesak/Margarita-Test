@@ -17,7 +17,7 @@
 
 /gps/number 1
 /gps/ene/type Mono
-/gps/ene/mono 30 MeV
+/gps/ene/mono 10 MeV
 
 
 #/gps/ene/gradient 1
