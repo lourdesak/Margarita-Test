@@ -40,13 +40,14 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Primaries only
   if (trk->GetParentID() != 0) return;
 
+  // Already counted this track — skip
+  const G4int trkID = trk->GetTrackID();
+  if (fStoppedTrackIDs.count(trkID)) return;
+
   // Stop condition: KE ~ 0 (at post-step) inside one of the cylinders
   const G4double eKinPost_step = post->GetKineticEnergy();
   const G4double keEps         = 1.0 * keV;
   if (eKinPost_step > keEps) return;
-
-  // If this track is already being terminated, don't count it again
-  if (trk->GetTrackStatus() == fStopAndKill) return;
 
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
@@ -54,18 +55,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double x        = posPost.x();
   const G4double y        = posPost.y();
   const G4double z        = posPost.z();
-
-    // Convert global stop position to detector-local coordinates
-  const G4ThreeVector localPos =
-      post->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(posPost);
-
-  // Beam enters from +global z.
-  // With your X-rotation, that corresponds to +local y.
-  // Cylinder radius in that transverse direction is 3.65 cm.
-  const G4double detectorHalfThickness = 3.65 * cm;
-
-  // Depth into detector: 0 at front face, 7.3 cm at back face
-  const G4double stopDepth = (detectorHalfThickness - localPos.y()) / cm;
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
@@ -75,10 +64,9 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const std::array<G4int,3> h1_initKE  = {3, 6, 9};
 
   analysisManager->FillH1(h1_keStop[idx], eKinPost_step);
-  analysisManager->FillH1(h1_zStop[idx], std::abs(z) / 10.0);
+  analysisManager->FillH1(h1_zStop[idx], z);
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
 
-  // Ensure this muon cannot be counted again on subsequent steps
   trk->SetTrackStatus(fStopAndKill);
 }
