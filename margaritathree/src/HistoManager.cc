@@ -31,7 +31,7 @@ void HistoManager::Book()
   G4int id = analysis->CreateH1("h1.1", "CylPV Stop: E_{kin} [MeV]", 200, -50., 50.); // H1 id=1
   analysis->SetH1Activation(id, true);
 
-  id = analysis->CreateH1("h1.2", "CylPV Stop: Z [mm]", 200, -50., 50.);           // H1 id=2
+  id = analysis->CreateH1("h1.2", "CylPV Stop: Z [cm]", 200, -5., 5.);           // H1 id=2
   analysis->SetH1Activation(id, true);
 
   id = analysis->CreateH2("h2.1", "CylPV Stop: XY;x [mm];y [mm]",
@@ -45,7 +45,7 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.4", "CylPV2 Stop: E_{kin} [MeV]", 200, -50., 50.);     // H1 id=4
   analysis->SetH1Activation(id, true);
 
-  id = analysis->CreateH1("h1.5", "CylPV2 Stop: Z [mm]", 200, -50., 50.);          // H1 id=5
+  id = analysis->CreateH1("h1.5", "CylPV2 Stop: Z [cm]", 200, -5., 5.);          // H1 id=5
   analysis->SetH1Activation(id, true);
 
   id = analysis->CreateH2("h2.2", "CylPV2 Stop: XY;x [mm];y [mm]",
@@ -59,7 +59,7 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.7", "CylPV3 Stop: E_{kin} [MeV]", 200, -50., 50.);     // H1 id=7
   analysis->SetH1Activation(id, true);
 
-  id = analysis->CreateH1("h1.8", "CylPV3 Stop: Z [mm]", 200, -50., 50.);          // H1 id=8
+  id = analysis->CreateH1("h1.8", "CylPV3 Stop: Z [cm]", 200, -5., 5.);          // H1 id=8
   analysis->SetH1Activation(id, true);
 
   id = analysis->CreateH2("h2.3", "CylPV3 Stop: XY;x [mm];y [mm]",

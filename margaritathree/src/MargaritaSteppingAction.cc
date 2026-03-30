@@ -29,7 +29,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4String namePost = volPost->GetName();
 
   // Select which cylinder we are in
-  // idx = 0 -> CylPV, idx = 1 -> CylPV2, idx = 2 -> CylPV3
   int idx = -1;
   if      (namePost == "CylPV")  idx = 0;
   else if (namePost == "CylPV2") idx = 1;
@@ -43,29 +42,26 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Primaries only
   if (trk->GetParentID() != 0) return;
 
-  // Stop condition: KE ~ 0 (at post-step) inside one of the cylinders
+  // Stop condition: KE ~ 0
   const G4double eKinPost_step = post->GetKineticEnergy();
   const G4double keEps         = 1.0 * keV;
   if (eKinPost_step > keEps) return;
 
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
-  const auto     posPost  = post->GetPosition();
-  const G4double x        = posPost.x();
-  const G4double y        = posPost.y();
-  const G4double z        = posPost.z();
+
+  const auto posPost = post->GetPosition();
+  const G4double x   = posPost.x();
+  const G4double y   = posPost.y();
+
+  // --- CHANGED: global -> local z ---
+  const auto touchable = post->GetTouchableHandle();
+  G4ThreeVector localPos =
+      touchable->GetHistory()->GetTopTransform().TransformPoint(posPost);
+  const G4double z = localPos.z() / cm;
+  // ----------------------------------
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-  // IMPORTANT: These IDs must match what you CreateH1/CreateH2 in HistoManager.
-  //
-  // We assume you will create 12 histograms total, in this order:
-  // CylPV:   H1(KEstop)=1, H1(Z)=2, H2(XY)=1, H1(InitKE)=3   (example layout below uses per-cylinder blocks)
-  //
-  // A clean scheme is per-cylinder blocks:
-  // Cylinder 0 (CylPV):   H1 ids 1,2,3 and H2 id 1
-  // Cylinder 1 (CylPV2):  H1 ids 4,5,6 and H2 id 2
-  // Cylinder 2 (CylPV3):  H1 ids 7,8,9 and H2 id 3
 
   const std::array<G4int,3> h1_keStop  = {1, 4, 7};
   const std::array<G4int,3> h1_zStop   = {2, 5, 8};

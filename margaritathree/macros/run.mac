@@ -9,25 +9,44 @@
 
 /gps/particle mu-
 /gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/centre 0 0 1 m
+/gps/pos/shape Square
+/gps/pos/centre 0 0 -1 m
 #/gps/pos/radius 1 cm
-/gps/pos/radius 3.65 cm
+#/gps/pos/radius 3.65 cm
+/gps/pos/halfx 3.65 cm
+/gps/pos/halfy 3.65 cm
 /gps/direction 0 0 1
 
 /gps/number 1
 /gps/ene/type Mono
 /gps/ene/mono 10 MeV
+/run/beamOn 10000
 
+/analysis/setFileName test_10MeV
+/gps/ene/mono 20 MeV
+/run/beamOn 10000
+
+/analysis/setFileName test_20MeV
+/gps/ene/mono 30 MeV
+/run/beamOn 10000
+
+/analysis/setFileName test_30MeV
+/gps/ene/mono 40 MeV
+/run/beamOn 10000
+
+/analysis/setFileName test_40MeV
+/gps/ene/mono 50 MeV
+/run/beamOn 10000
+
+/analysis/setFileName test_50MeV
 #/gps/ene/type Lin
 #/gps/ene/min 1 MeV
 #/gps/ene/max 100 MeV
 #/gps/ene/gradient 1
 #/gps/ene/intercept 1
+#/analysis/list
+#/analysis/setFileName test01
 
-/analysis/list
-/analysis/setFileName test01
-
-/run/printProgress 10000
-/run/beamOn 1000
+#/run/printProgress 10000
+#/run/beamOn 1000
 

@@ -9,10 +9,12 @@
 
 /gps/particle mu-
 /gps/pos/type Plane
-/gps/pos/shape Circle
+/gps/pos/shape Square
 /gps/pos/centre 0 0 1 m
 #/gps/pos/radius 1 cm
-/gps/pos/radius 3.65 cm
+#/gps/pos/radius 3.65 cm
+/gps/pos/halfx 3.65 cm
+/gps/pos/halfy 3.65 cm
 /gps/direction 0 0 -1
 
 /gps/number 1
@@ -24,5 +26,5 @@
 #/gps/ene/intercept 1
 
 /run/printProgress 10000
-/run/beamOn 10000
+/run/beamOn 1
 
