@@ -11,10 +11,7 @@ MargaritaPrimaryGenerator::~MargaritaPrimaryGenerator() {
 
 void MargaritaPrimaryGenerator::GeneratePrimaries(G4Event* event) {
     fGPS->GeneratePrimaryVertex(event);
-
     static G4long total = 0;
-
-    fGPS->GeneratePrimaryVertex(event);
 
     total += 1;
     G4cout << "Total primaries so far: " << total << G4endl;

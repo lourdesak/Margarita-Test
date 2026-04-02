@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     runManager ->SetUserInitialization(new DetectorConstruction ()); //Cyl stuff
     runManager->SetUserInitialization(new QGSP_BERT); //Physics list stuff
     runManager->SetUserInitialization(new ActionInitialization); //Beam stuff
-    runManager ->Initialize(); //responsible for error gen
+//    runManager ->Initialize(); //responsible for error gen
     
     G4UIExecutive *ui = new G4UIExecutive(argc, argv);
     G4VisManager *visManager = new G4VisExecutive();
@@ -38,13 +38,7 @@ int main(int argc, char** argv)
     UImanager -> ApplyCommand("/vis/drawVolume");
     UImanager -> ApplyCommand("/vis/viewer/set/autoRefresh true");
     UImanager -> ApplyCommand("/vis/scene/add/trajectories smooth");
-//Beam specifications: Avoiding macro use temporarily
-//    UImanager->ApplyCommand("/gps/pos/type Plane");
-//    UImanager->ApplyCommand("/gps/pos/shape Circle");
-//    UImanager->ApplyCommand("/gps/direction 0 0 1.0 * CLHEP::m");
-//    UImanager->ApplyCommand("/gps/pos/centre 0 0 0 * CLHEP::m");
-//    UImanager->ApplyCommand("/gps/pos/radius 3.65 * CLHEP::cm");
-    
+
     ui->SessionStart();
     return 0;
 }
