@@ -19,12 +19,11 @@
 /gps/direction 0 0 -1
 
 /gps/number 1
-/gps/ene/type Lin
-/gps/ene/min 10 MeV
-/gps/ene/max 100 MeV
-/gps/ene/gradient 0
-/gps/ene/intercept 1
+# Energy is cycled programmatically in MargaritaPrimaryGenerator.cc:
+# 1000 muons x 91 energies (10–100 MeV, 1 MeV steps) = 91000 events
+/gps/ene/type Mono
+/gps/ene/mono 10 MeV
 
 /run/printProgress 10000
-/run/beamOn 100000
+/run/beamOn 91000
 

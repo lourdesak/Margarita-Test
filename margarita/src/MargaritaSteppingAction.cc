@@ -42,12 +42,17 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-  // --- Stopping power: dE/dx vs KE, operational window 10–100 MeV ---
+  // --- Stopping power: one entry per muon, sampled at detector entry ---
+  // Entry step = pre-step point was outside CylPV
+  G4VPhysicalVolume* volPre = aStep->GetPreStepPoint()->GetTouchableHandle()
+      ? aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume() : nullptr;
+  const bool isEntryStep = (!volPre || volPre->GetName() != "CylPV");
+
   const G4double eKinPre = aStep->GetPreStepPoint()->GetKineticEnergy();
   const G4double stepLen = aStep->GetStepLength();
   const G4double eDep    = aStep->GetTotalEnergyDeposit();
 
-  if (stepLen > 0. && eKinPre >= 10.*MeV && eKinPre <= 100.*MeV) {
+  if (isEntryStep && stepLen > 0. && eKinPre >= 10.*MeV && eKinPre <= 100.*MeV) {
     const G4double dEdx = eDep / stepLen;          // MeV/mm (Geant4 internal)
     analysisManager->FillH2(2, eKinPre/MeV, dEdx/(MeV/cm));
   }
