@@ -31,9 +31,15 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.2", "Stop: Z[cm]", 200, 0, 3.65);     
   analysis->SetH1Activation(id, true);
   id = analysis->CreateH2("h2.1", "Stop: XY;x [mm];y [mm]", 120, -50., 50., 120, -50., 50.);    // id = 3
-  analysis->SetH2Activation(id, true);   
+  analysis->SetH2Activation(id, true);
   id = analysis->CreateH1("h1.3", "Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.);   // id = 4
   analysis->SetH1Activation(id, true);
+
+  // Stopping power curve: dE/dx [MeV/cm] vs KE [MeV], 10–100 MeV window
+  id = analysis->CreateH2("h2.2", "Stopping Power;KE [MeV];dE/dx [MeV/cm]",
+                           90, 10., 100.,    // x: KE, 1 MeV/bin
+                           200, 0., 25.);    // y: dE/dx
+  analysis->SetH2Activation(id, true);
   // id = analysis->CreateH1("h1.4", "Stopping efficiency vs. time", 200, 0., 50.);   // id = 5
   // analysis->SetH1Activation(id, true);
 
