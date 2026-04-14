@@ -21,34 +21,59 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4Material* worldMat = nist->FindOrBuildMaterial("G4_AIR");
 
     // World solid (1 m cube)
-    G4Box* WorldVol = new G4Box("WorldVol", 10 * m, 10 * m, 20 * m); //Half-meas so 1x1x2m cube
+    G4Box* WorldVol = new G4Box("WorldVol", 25 * cm, 25 * cm, 25 * cm); //Half-meas so 50 cm cube
 
     // World logical volume
     G4LogicalVolume* logicWorld = new G4LogicalVolume(WorldVol,worldMat,"logicWorld");
 
     // World placement
     G4VPhysicalVolume* physWorld = new G4PVPlacement(0,G4ThreeVector(0., 0., 0.),logicWorld,"physWorld",0,false,0,true);
+//________________________________________________________________________________________________________________________________________________________________
+//                              CYLINDER
+//________________________________________________________________________________________________________________________________________________________________
 
-    // --- ADDED: cylinder placed inside logicWorld (can be a mother for daughters) ---
-    G4Material* cylMat = nist->FindOrBuildMaterial("G4_WATER");  // Any NIST Material 
-    auto* cylSolid = new G4Tubs("CylSolid",
-                                0.*cm,     // inner radius
-                                3.65*cm,    // outer radius
-                                3.65*cm,    // half-length (height = 7.3 cm)
-                                0.*deg, 360.*deg);
-    auto* cylLV = new G4LogicalVolume(cylSolid, cylMat, "CylLV");
-    auto cylVis = new G4VisAttributes(G4Colour(0.2,0.7,0.9,1.0)); //OpenGL beautification
-    cylVis->SetForceSolid(true);
-    cylLV->SetVisAttributes(cylVis);
-    auto rotX90 = new G4RotationMatrix();
-    rotX90->rotateX(90.*deg);       // +90° about X (Tubs axis Z -> points along -Y)
-    new G4PVPlacement(rotX90,                     // rotation
-                      G4ThreeVector(0.,0.,0*m), 
-                      cylLV, "CylPV",
-                      logicWorld, false, 0, true);
+    // G4Material* cylMat = nist->FindOrBuildMaterial("G4_WATER");  // Any NIST Material
+    // auto* cylSolid = new G4Tubs("CylSolid",
+    //                             0.*cm,     // inner radius
+    //                             3.65*cm,    // outer radius
+    //                             3.65*cm,    // half-length (height = 7.3 cm)
+    //                             0.*deg, 360.*deg);
+    // auto* cylLV = new G4LogicalVolume(cylSolid, cylMat, "CylLV");
+    // auto cylVis = new G4VisAttributes(G4Colour(0.2,0.7,0.9,1.0)); //OpenGL beautification
+    // cylVis->SetForceSolid(true);
+    // cylLV->SetVisAttributes(cylVis);
+    // auto rotX90 = new G4RotationMatrix();
+    // rotX90->rotateX(90.*deg);       // +90° about X (Tubs axis Z -> points along -Y)
+    // new G4PVPlacement(rotX90,                     // rotation
+    //                   G4ThreeVector(0.,0.,0*m),
+    //                   cylLV, "CylPV",
+    //                   logicWorld, false, 0, true);
+
+    // G4cout << "[Mat] World: " << logicWorld->GetMaterial()->GetName() << G4endl;
+    // G4cout << "[Mat] Cyl  : " << cylLV->GetMaterial()->GetName() << G4endl;
+//________________________________________________________________________________________________________________________________________________________________
+//                              BOX
+//________________________________________________________________________________________________________________________________________________________________
+    G4Material* boxMat = nist->FindOrBuildMaterial("G4_WATER");
+
+    auto* boxSolid = new G4Box("BoxSolid",
+                            3.65 * cm,   // half x  -> 7.3 cm
+                            3.65 * cm,   // half y  -> 7.3 cm
+                            3.65 * cm);  // half z  -> 7.3 cm depth
+
+    auto* boxLV = new G4LogicalVolume(boxSolid, boxMat, "BoxLV");
+
+    auto* boxVis = new G4VisAttributes(G4Colour(0.2, 0.7, 0.9, 1.0));
+    boxVis->SetForceSolid(true);
+    boxLV->SetVisAttributes(boxVis);
+
+    new G4PVPlacement(0,                      // no rotation needed
+                    G4ThreeVector(0.,0.,0.),
+                    boxLV, "BoxPV",
+                    logicWorld, false, 0, true);
 
     G4cout << "[Mat] World: " << logicWorld->GetMaterial()->GetName() << G4endl;
-    G4cout << "[Mat] Cyl  : " << cylLV->GetMaterial()->GetName() << G4endl;
+    G4cout << "[Mat] Box  : " << boxLV->GetMaterial()->GetName() << G4endl;
 
     return physWorld;
 }

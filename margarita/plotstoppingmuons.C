@@ -40,7 +40,7 @@
                             (1.0 + 2.0 * gamma * me / mmu + (me/mmu)*(me/mmu));
             double arg    = 2.0 * me * beta2 * gamma * gamma * Tmax / (I * I);
             return K * ZA * rho / beta2 * (0.5 * TMath::Log(arg) - beta2);
-        }, 10., 100., 0);
+        }, 1., 100., 0);
         fBB->SetLineColor(kRed);
         fBB->SetLineWidth(2);
         fBB->SetLineStyle(2);

@@ -9,6 +9,7 @@
 #include "G4AnalysisManager.hh"
 #include <cmath>
 #include <array>
+#include <map>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaRunAction* run)
 : frunAction(run) {}
@@ -30,7 +31,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 
   // Select which cylinder we are in
   int idx = -1;
-  if      (namePost == "CylPV")  idx = 0;
+  if      (namePost == "CylPV" || namePost == "BoxPV")  idx = 0;
   else return;
 
   // Particle selection: mu- only (PDG 13)
@@ -42,19 +43,43 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-  // --- Stopping power: one entry per muon, sampled at detector entry ---
-  // Entry step = pre-step point was outside CylPV
-  G4VPhysicalVolume* volPre = aStep->GetPreStepPoint()->GetTouchableHandle()
-      ? aStep->GetPreStepPoint()->GetTouchableHandle()->GetVolume() : nullptr;
-  const bool isEntryStep = (!volPre || volPre->GetName() != "CylPV");
+  // --- Incident muon counter (one per muon entering CylPV) ---
+  // Used as denominator for stopping efficiency: h1.5
+  static std::set<G4int> fIncidentCounted;
+  const G4int trkIDinc = trk->GetTrackID();
+  if (!fIncidentCounted.count(trkIDinc)) {
+    const G4double eKinInit_inc = trk->GetVertexKineticEnergy();
+    analysisManager->FillH1(5, eKinInit_inc/MeV);
+    fIncidentCounted.insert(trkIDinc);
+  }
 
-  const G4double eKinPre = aStep->GetPreStepPoint()->GetKineticEnergy();
+  // --- Stopping power: one entry per muon ---
+  // Accumulate total eDep and path length per track.  Fill h2.2 once
+  // when the muon stops (KE~0) or is about to leave CylPV.
+  struct TrackAccum { G4double eDep = 0.; G4double pathLen = 0.; };
+  static std::map<G4int, TrackAccum> fSPaccum;
+
+  const G4int    trkIDsp = trk->GetTrackID();
   const G4double stepLen = aStep->GetStepLength();
   const G4double eDep    = aStep->GetTotalEnergyDeposit();
 
-  if (isEntryStep && stepLen > 0. && eKinPre >= 10.*MeV && eKinPre <= 100.*MeV) {
-    const G4double dEdx = eDep / stepLen;          // MeV/mm (Geant4 internal)
-    analysisManager->FillH2(2, eKinPre/MeV, dEdx/(MeV/cm));
+  fSPaccum[trkIDsp].eDep    += eDep;
+  fSPaccum[trkIDsp].pathLen += stepLen;
+
+  // Check if this muon is done: stopped or about to leave the cylinder
+  const G4double postKE = post->GetKineticEnergy();
+  const G4bool   stopped = (postKE < 1.0 * keV);
+  const G4bool   exiting = (trk->GetNextVolume() == nullptr ||
+                            trk->GetNextVolume()->GetName() != "CylPV");
+
+  if (stopped || exiting) {
+    TrackAccum& acc = fSPaccum[trkIDsp];
+    const G4double eKinInit = trk->GetVertexKineticEnergy();
+    if (acc.pathLen > 0. && eKinInit >= 1.*MeV && eKinInit <= 100.*MeV) {
+      const G4double dEdx = acc.eDep / acc.pathLen;
+      analysisManager->FillH2(2, eKinInit/MeV, dEdx/(MeV/cm));
+    }
+    fSPaccum.erase(trkIDsp);
   }
 
   // --- Stop detection ---
@@ -70,9 +95,9 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
   const auto     posPost  = post->GetPosition();
-  const G4double x        = posPost.x();
-  const G4double y        = posPost.y();
-  const G4double z        = posPost.z();
+  const G4double x = posPost.x()/cm;
+  const G4double y = posPost.y()/cm;
+  const G4double z = posPost.z()/cm;
 
   const std::array<G4int,3> h1_keStop  = {1, 4, 7};
   const std::array<G4int,3> h1_zStop   = {2, 5, 8};
@@ -83,6 +108,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   analysisManager->FillH1(h1_zStop[idx], z);
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
+  
 
   trk->SetTrackStatus(fStopAndKill);
 }
