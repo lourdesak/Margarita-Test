@@ -40,6 +40,19 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Primaries only
   if (trk->GetParentID() != 0) return;
 
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // --- Stopping power: dE/dx vs KE, operational window 10–100 MeV ---
+  const G4double eKinPre = aStep->GetPreStepPoint()->GetKineticEnergy();
+  const G4double stepLen = aStep->GetStepLength();
+  const G4double eDep    = aStep->GetTotalEnergyDeposit();
+
+  if (stepLen > 0. && eKinPre >= 10.*MeV && eKinPre <= 100.*MeV) {
+    const G4double dEdx = eDep / stepLen;          // MeV/mm (Geant4 internal)
+    analysisManager->FillH2(2, eKinPre/MeV, dEdx/(MeV/cm));
+  }
+
+  // --- Stop detection ---
   // Already counted this track — skip
   const G4int trkID = trk->GetTrackID();
   if (fStoppedTrackIDs.count(trkID)) return;
@@ -55,8 +68,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double x        = posPost.x();
   const G4double y        = posPost.y();
   const G4double z        = posPost.z();
-
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   const std::array<G4int,3> h1_keStop  = {1, 4, 7};
   const std::array<G4int,3> h1_zStop   = {2, 5, 8};
