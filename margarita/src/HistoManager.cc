@@ -30,11 +30,11 @@ void HistoManager::Book()
   analysis->SetH1Activation(id, true);
   id = analysis->CreateH1("h1.2", "Stop: Z[cm]", 200, 0, 3.65);     
   analysis->SetH1Activation(id, true);
-  id = analysis->CreateH2("h2.1", "Stop: XY;x [cm];y [cm]", 120, -2., 7.5, 120, -2., 7.5);    // id = 3
+  id = analysis->CreateH2("h2.1", "Stop: XY;x [cm];y [cm]", 120, -3.65, 3.65, 120, -3.65, 3.65);    // id = 3
   analysis->SetH2Activation(id, true);
   id = analysis->CreateH1("h1.3", "Stop: E_{kin}^{init} [MeV];counts", 200, 0., 50.);   // id = 4
   analysis->SetH1Activation(id, true);
-  id = analysis->CreateH1("h1.4", "Beam initial KE;E [MeV];counts", 200, 0., 50.);
+  id = analysis->CreateH1("h1.4", "Beam initial KE;E [MeV];counts", 200, 0., 100.);
   analysis->SetH1Activation(id, true);
 
   // Incident muons in CylPV vs initial KE (denominator for stopping efficiency)
@@ -44,7 +44,7 @@ void HistoManager::Book()
   // Stopping power curve: dE/dx [MeV/cm] vs KE [MeV], 1–100 MeV window
   id = analysis->CreateH2("h2.2",
                           "Stopping Power versus Kinetic Energy;Kinetic Energy [MeV];dE/dx [MeV/cm]",
-                           49, 1., 50.,     // x: KE, 1 MeV/bin
+                           99, 1., 100.,     // x: KE, 1 MeV/bin
                            200, 0., 40.);    // y: dE/dx, covers Bragg peak at low KE
   analysis->SetH2Activation(id, true);
   // id = analysis->CreateH1("h1.4", "Stopping efficiency vs. time", 200, 0., 50.);   // id = 5

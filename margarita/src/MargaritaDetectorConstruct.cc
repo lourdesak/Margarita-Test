@@ -40,6 +40,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     //                             0.*deg, 360.*deg);
     // auto* cylLV = new G4LogicalVolume(cylSolid, cylMat, "CylLV");
     // auto cylVis = new G4VisAttributes(G4Colour(0.2,0.7,0.9,1.0)); //OpenGL beautification
+    // auto redOutline = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); // red
+    // redOutline->SetVisibility(true);
+    // redOutline->SetForceWireframe(true);
+    // logicWorld->SetVisAttributes(redOutline);
     // cylVis->SetForceSolid(true);
     // cylLV->SetVisAttributes(cylVis);
     // auto rotX90 = new G4RotationMatrix();
@@ -64,6 +68,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     auto* boxLV = new G4LogicalVolume(boxSolid, boxMat, "BoxLV");
 
     auto* boxVis = new G4VisAttributes(G4Colour(0.2, 0.7, 0.9, 1.0));
+    auto redOutline = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0)); // red
+    redOutline->SetVisibility(true);
+    redOutline->SetForceWireframe(true);
+    logicWorld->SetVisAttributes(redOutline);
     boxVis->SetForceSolid(true);
     boxLV->SetVisAttributes(boxVis);
 

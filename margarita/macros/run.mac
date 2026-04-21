@@ -23,4 +23,12 @@
 /gps/ene/intercept 1
 
 /run/printProgress 10000
+
+#Beam stuff
+/tracking/storeTrajectory 0
+/vis/scene/endOfEventAction accumulate
+/vis/viewer/set/autoRefresh false
 /run/beamOn 100000
+
+/vis/viewer/set/autoRefresh true
+/vis/viewer/flush
