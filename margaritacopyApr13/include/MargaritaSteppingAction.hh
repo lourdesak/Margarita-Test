@@ -11,7 +11,7 @@ class MargaritaRunAction;
 class MargaritaSteppingAction : public G4UserSteppingAction {
 public:
     MargaritaSteppingAction(MargaritaRunAction* run);
-    ~MargaritaSteppingAction();
+    ~MargaritaSteppingAction();   
 
     void UserSteppingAction(const G4Step* step) override;
     void ClearStoppedTracks() { fStoppedTrackIDs.clear(); }

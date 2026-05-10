@@ -6,9 +6,6 @@ find_package(Geant4 REQUIRED ui_all vis_all)
 
 include(${Geant4_USE_FILE})
 
-# ---- ROOT support ----
-find_package(ROOT REQUIRED COMPONENTS Core RIO Hist Tree)
-
 # Sources & headers
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
@@ -18,14 +15,7 @@ target_include_directories(g4marg PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(g4marg PRIVATE
-  Geant4::G4analysis
-  ${Geant4_LIBRARIES}
-  ROOT::Core
-  ROOT::RIO
-  ROOT::Hist
-  ROOT::Tree
-)
+#target_link_libraries(g4marg ${Geant4_LIBRARIES})
 #add_custom_target(Simulation DEPENDS g4marg)
 
 # ---- Minimal Histogram support ----

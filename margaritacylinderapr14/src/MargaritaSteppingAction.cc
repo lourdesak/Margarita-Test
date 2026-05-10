@@ -31,7 +31,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 
   // Select which cylinder we are in
   int idx = -1;
-  if      (namePost == "CylPV" || namePost == "BoxPV")  idx = 0;
+  if      (namePost == "CylPV")  idx = 0;
   else return;
 
   // Particle selection: mu- only (PDG 13)
@@ -95,9 +95,9 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
   const auto     posPost  = post->GetPosition();
-  const G4double x = posPost.x()/cm;
-  const G4double y = posPost.y()/cm;
-  const G4double z = posPost.z()/cm;
+  const G4double x        = posPost.x();
+  const G4double y        = posPost.y();
+  const G4double z        = posPost.z();
 
   const std::array<G4int,3> h1_keStop  = {1, 4, 7};
   const std::array<G4int,3> h1_zStop   = {2, 5, 8};
@@ -108,7 +108,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   analysisManager->FillH1(h1_zStop[idx], z);
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
-
+  
 
   trk->SetTrackStatus(fStopAndKill);
 }

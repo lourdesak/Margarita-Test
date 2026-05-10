@@ -1,8 +1,6 @@
 #include "MargaritaRunAction.hh"
 #include "HistoManager.hh"
-#include "MargaritaDetectorConstruct.hh"
 #include "G4Run.hh"
-#include "G4RunManager.hh"
 
 MargaritaRunAction::MargaritaRunAction() : G4UserRunAction(), fHistoManager(0)
 {
@@ -16,23 +14,20 @@ MargaritaRunAction::~MargaritaRunAction()
 
 void MargaritaRunAction::BeginOfRunAction(const G4Run*)
 {
+  // Histograms
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if (analysisManager->IsActive()) {
-    auto* det = dynamic_cast<const DetectorConstruction*>(
-        G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    if (det) {
-      const G4String& g = det->GetGeometry();
-      analysisManager->SetFileName(g == "cyl" ? "g4marg_cyl" : "g4marg");
-    }
     analysisManager->OpenFile();
   }
 }
 
 void MargaritaRunAction::EndOfRunAction(const G4Run*)
 {
+  // Save histograms
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if (analysisManager->IsActive()) {
     analysisManager->Write();
     analysisManager->CloseFile();
   }
 }
+

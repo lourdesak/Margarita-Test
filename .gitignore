@@ -15,4 +15,6 @@ cat > .gitignore << 'EOF'
 
 # common binaries (adjust if yours differ)
 **/g4marg
-EOF
+EOF.claude/
+*/.claude/
+*/.claude/worktrees/

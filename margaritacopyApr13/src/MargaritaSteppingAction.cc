@@ -7,7 +7,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include "G4AnalysisManager.hh"
-
+#include <cmath>
 #include <array>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaRunAction* run)
@@ -31,8 +31,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Select which cylinder we are in
   int idx = -1;
   if      (namePost == "CylPV")  idx = 0;
-  else if (namePost == "CylPV2") idx = 1;
-  else if (namePost == "CylPV3") idx = 2;
   else return;
 
   // Particle selection: mu- only (PDG 13)
@@ -42,24 +40,21 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   // Primaries only
   if (trk->GetParentID() != 0) return;
 
-  // Stop condition: KE ~ 0
+  // Already counted this track — skip
+  const G4int trkID = trk->GetTrackID();
+  if (fStoppedTrackIDs.count(trkID)) return;
+
+  // Stop condition: KE ~ 0 (at post-step) inside one of the cylinders
   const G4double eKinPost_step = post->GetKineticEnergy();
   const G4double keEps         = 1.0 * keV;
   if (eKinPost_step > keEps) return;
 
   // Values to fill
   const G4double eKinInit = trk->GetVertexKineticEnergy();
-
-  const auto posPost = post->GetPosition();
-  const G4double x   = posPost.x();
-  const G4double y   = posPost.y();
-
-  // --- CHANGED: global -> local z ---
-  const auto touchable = post->GetTouchableHandle();
-  G4ThreeVector localPos =
-      touchable->GetHistory()->GetTopTransform().TransformPoint(posPost);
-  const G4double z = localPos.z() / cm;
-  // ----------------------------------
+  const auto     posPost  = post->GetPosition();
+  const G4double x        = posPost.x();
+  const G4double y        = posPost.y();
+  const G4double z        = posPost.z();
 
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
@@ -69,8 +64,9 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const std::array<G4int,3> h1_initKE  = {3, 6, 9};
 
   analysisManager->FillH1(h1_keStop[idx], eKinPost_step);
-  analysisManager->FillH1(h1_zStop[idx],  z);
+  analysisManager->FillH1(h1_zStop[idx], z);
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
-  
+
+  trk->SetTrackStatus(fStopAndKill);
 }
