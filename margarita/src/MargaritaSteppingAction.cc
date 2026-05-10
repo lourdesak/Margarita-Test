@@ -9,7 +9,6 @@
 #include "G4AnalysisManager.hh"
 #include <cmath>
 #include <array>
-#include <map>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaRunAction* run)
 : frunAction(run) {}
@@ -19,31 +18,50 @@ MargaritaSteppingAction::~MargaritaSteppingAction() = default;
 void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   // Handles
+  G4StepPoint* pre  = aStep->GetPreStepPoint();
   G4StepPoint* post = aStep->GetPostStepPoint();
   G4Track*     trk  = aStep->GetTrack();
 
-  // Volume at post-step
+  // Particle selection: mu- only (PDG 13), primaries only
+  const G4int pdg = trk->GetDefinition()->GetPDGEncoding();
+  if (pdg != 13) return;
+  if (trk->GetParentID() != 0) return;
+
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // --- Stopping power: per-step dE/dx vs pre-step KE ---
+  // Uses PRE-step volume (where the energy deposit actually occurs).
+  // Both BoxPV and CylPV fill h2.2 (only one geometry active per run).
+  {
+    G4VPhysicalVolume* volPre =
+        pre->GetTouchableHandle() ? pre->GetTouchableHandle()->GetVolume() : nullptr;
+    if (volPre) {
+      const G4String namePre = volPre->GetName();
+      if (namePre == "BoxPV" || namePre == "CylPV") {
+        const G4double eKinPre = pre->GetKineticEnergy();
+        const G4double stepLen = aStep->GetStepLength();
+        const G4double eDep    = aStep->GetTotalEnergyDeposit();
+
+        if (stepLen > 0. && eDep > 0. && eKinPre <= 100.*MeV) {
+          const G4double dEdx = eDep / stepLen;
+          analysisManager->FillH2(2, eKinPre/MeV, dEdx/(MeV/cm));
+        }
+      }
+    }
+  }
+
+  // --- Post-step volume gate (incident counter + stop detection) ---
   G4VPhysicalVolume* volPost =
       post->GetTouchableHandle() ? post->GetTouchableHandle()->GetVolume() : nullptr;
   if (!volPost) return;
 
   const G4String namePost = volPost->GetName();
 
-  // Select which cylinder we are in
   int idx = -1;
   if      (namePost == "CylPV" || namePost == "BoxPV")  idx = 0;
   else return;
 
-  // Particle selection: mu- only (PDG 13)
-  const G4int pdg = trk->GetDefinition()->GetPDGEncoding();
-  if (pdg != 13) return;
-
-  // Primaries only
-  if (trk->GetParentID() != 0) return;
-
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-  // --- Incident muon counter (one per muon entering CylPV) ---
+  // --- Incident muon counter (one per muon entering the target) ---
   // Used as denominator for stopping efficiency: h1.5
   static std::set<G4int> fIncidentCounted;
   const G4int trkIDinc = trk->GetTrackID();
@@ -51,35 +69,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
     const G4double eKinInit_inc = trk->GetVertexKineticEnergy();
     analysisManager->FillH1(5, eKinInit_inc/MeV);
     fIncidentCounted.insert(trkIDinc);
-  }
-
-  // --- Stopping power: one entry per muon ---
-  // Accumulate total eDep and path length per track.  Fill h2.2 once
-  // when the muon stops (KE~0) or is about to leave CylPV.
-  struct TrackAccum { G4double eDep = 0.; G4double pathLen = 0.; };
-  static std::map<G4int, TrackAccum> fSPaccum;
-
-  const G4int    trkIDsp = trk->GetTrackID();
-  const G4double stepLen = aStep->GetStepLength();
-  const G4double eDep    = aStep->GetTotalEnergyDeposit();
-
-  fSPaccum[trkIDsp].eDep    += eDep;
-  fSPaccum[trkIDsp].pathLen += stepLen;
-
-  // Check if this muon is done: stopped or about to leave the cylinder
-  const G4double postKE = post->GetKineticEnergy();
-  const G4bool   stopped = (postKE < 1.0 * keV);
-  const G4bool   exiting = (trk->GetNextVolume() == nullptr ||
-                            trk->GetNextVolume()->GetName() != "CylPV");
-
-  if (stopped || exiting) {
-    TrackAccum& acc = fSPaccum[trkIDsp];
-    const G4double eKinInit = trk->GetVertexKineticEnergy();
-    if (acc.pathLen > 0. && eKinInit >= 1.*MeV && eKinInit <= 100.*MeV) {
-      const G4double dEdx = acc.eDep / acc.pathLen;
-      analysisManager->FillH2(2, eKinInit/MeV, dEdx/(MeV/cm));
-    }
-    fSPaccum.erase(trkIDsp);
   }
 
   // --- Stop detection ---

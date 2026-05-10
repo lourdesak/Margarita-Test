@@ -1,0 +1,35 @@
+/control/echo === RUNNING: run_box.mac (BoxPV) ===
+
+/control/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/gps/verbose 0
+
+/margarita/detectorGeometry box
+/run/initialize
+
+/gps/particle mu-
+/gps/pos/type Plane
+/gps/pos/shape Square
+/gps/pos/centre 0 0 10 cm
+/gps/pos/halfx 3.65 cm
+/gps/pos/halfy 3.65 cm
+/gps/direction 0 0 -1
+
+/gps/number 1
+/gps/ene/type Lin
+/gps/ene/min 1 MeV
+/gps/ene/max 100 MeV
+/gps/ene/gradient 0
+/gps/ene/intercept 1
+
+/run/printProgress 10000
+
+#Beam stuff
+/tracking/storeTrajectory 0
+/vis/scene/endOfEventAction accumulate
+/vis/viewer/set/autoRefresh false
+/run/beamOn 100000
+
+/vis/viewer/set/autoRefresh true
+/vis/viewer/flush

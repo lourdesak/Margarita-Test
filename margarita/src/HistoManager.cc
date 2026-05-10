@@ -41,13 +41,13 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.5", "Incident: E_{kin}^{init} [MeV];counts", 200, 0., 50.);  // id = 5
   analysis->SetH1Activation(id, true);
 
-  // Stopping power curve: dE/dx [MeV/cm] vs KE [MeV], 1–100 MeV window
+  // Stopping power: dE/dx [MeV/cm] vs pre-step KE [MeV]
+  // Both BoxPV and CylPV fill h2.2 (only one geometry active per run).
+  // Plot macro reads h2.2 from g4marg.root (box) and g4marg_cyl.root (cyl).
   id = analysis->CreateH2("h2.2",
-                          "Stopping Power versus Kinetic Energy;Kinetic Energy [MeV];dE/dx [MeV/cm]",
-                           99, 1., 100.,     // x: KE, 1 MeV/bin
-                           200, 0., 40.);    // y: dE/dx, covers Bragg peak at low KE
+                          "Stopping Power vs KE;Initial KE [MeV];dE/dx [MeV/cm]",
+                           200, 0., 100.,     // x: KE, 0.5 MeV/bin
+                           200, 0., 40.);    // y: dE/dx, covers Bragg peak
   analysis->SetH2Activation(id, true);
-  // id = analysis->CreateH1("h1.4", "Stopping efficiency vs. time", 200, 0., 50.);   // id = 5
-  // analysis->SetH1Activation(id, true);
 
 }
