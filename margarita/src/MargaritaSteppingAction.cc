@@ -3,13 +3,13 @@
 
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4Event.hh"
+#include "G4RunManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
 #include "G4AnalysisManager.hh"
-#include <cmath>
 #include <array>
-#include <map>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaRunAction* run)
 : frunAction(run) {}
@@ -53,33 +53,56 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
     fIncidentCounted.insert(trkIDinc);
   }
 
-  // --- Stopping power: one entry per muon ---
-  // Accumulate total eDep and path length per track.  Fill h2.2 once
-  // when the muon stops (KE~0) or is about to leave CylPV.
-  struct TrackAccum { G4double eDep = 0.; G4double pathLen = 0.; };
-  static std::map<G4int, TrackAccum> fSPaccum;
-
-  const G4int    trkIDsp = trk->GetTrackID();
+  // --- Stopping power: per-step dE/dx vs pre-step KE → h2.2 ---
   const G4double stepLen = aStep->GetStepLength();
   const G4double eDep    = aStep->GetTotalEnergyDeposit();
-
-  fSPaccum[trkIDsp].eDep    += eDep;
-  fSPaccum[trkIDsp].pathLen += stepLen;
-
-  // Check if this muon is done: stopped or about to leave the cylinder
-  const G4double postKE = post->GetKineticEnergy();
+  const G4double eKinPre = aStep->GetPreStepPoint()->GetKineticEnergy();
+  const G4double postKE  = post->GetKineticEnergy();
   const G4bool   stopped = (postKE < 1.0 * keV);
   const G4bool   exiting = (trk->GetNextVolume() == nullptr ||
-                            trk->GetNextVolume()->GetName() != "CylPV");
+                            trk->GetNextVolume()->GetName() != namePost);
 
-  if (stopped || exiting) {
-    TrackAccum& acc = fSPaccum[trkIDsp];
-    const G4double eKinInit = trk->GetVertexKineticEnergy();
-    if (acc.pathLen > 0. && eKinInit >= 1.*MeV && eKinInit <= 100.*MeV) {
-      const G4double dEdx = acc.eDep / acc.pathLen;
-      analysisManager->FillH2(2, eKinInit/MeV, dEdx/(MeV/cm));
+  if (stepLen > 0. && eDep > 0.)
+    analysisManager->FillH2(2, eKinPre/MeV, eDep/stepLen/(MeV/cm));
+
+  // -----------------------------------------------------------------
+  // [NEW] Per-track step buffer for single-track diagnostic
+  // Append this step's record. We don't yet know if the track stops;
+  // we only flush to the ntuple when we detect a stop below.
+  //
+  // Track identity is (eventID, trackID): trackID alone is event-local
+  // (every event's primary is trackID=1) so a pure trackID check would
+  // silently concatenate consecutive events' primaries into one buffer.
+  // -----------------------------------------------------------------
+  {
+    const G4Event* evtBuf = G4RunManager::GetRunManager()->GetCurrentEvent();
+    const G4int eventIDbuf = evtBuf ? evtBuf->GetEventID() : -1;
+    const G4int trkIDbuf   = trk->GetTrackID();
+    if (trkIDbuf != fCurTrackID || eventIDbuf != fCurEventID) {
+      // New primary mu- (either new event, or previous one exited w/o stopping)
+      fCurEventID  = eventIDbuf;
+      fCurTrackID  = trkIDbuf;
+      fCurEKinInit = trk->GetVertexKineticEnergy() / MeV;
+      fCurVertex   = trk->GetVertexPosition();
+      fCurDir      = trk->GetVertexMomentumDirection();
+      fCurCumLen   = 0.;
+      fCurSteps.clear();
     }
-    fSPaccum.erase(trkIDsp);
+    if (stepLen > 0.) {
+      fCurCumLen += stepLen / cm;
+      StepRec rec;
+      rec.stepNum = (G4int)fCurSteps.size() + 1;
+      rec.kePre   = eKinPre / MeV;
+      rec.dEdx    = (eDep > 0.) ? eDep / stepLen / (MeV / cm) : 0.;
+      const auto pp = post->GetPosition();
+      rec.x       = pp.x() / cm;
+      rec.y       = pp.y() / cm;
+      rec.z       = pp.z() / cm;
+      rec.stepLen = stepLen / cm;
+      rec.eDep    = eDep / MeV;
+      rec.cumLen  = fCurCumLen;
+      fCurSteps.push_back(rec);
+    }
   }
 
   // --- Stop detection ---
@@ -109,6 +132,50 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   analysisManager->FillH2(h2_xyStop[idx], x, y);
   analysisManager->FillH1(h1_initKE[idx], eKinInit);
 
+  // -----------------------------------------------------------------
+  // [NEW] Flush buffered step records of this stopping track to the
+  // stoppingSteps ntuple (ntupleId = 0). Track-level summary fields
+  // are written on every row so a single (eventID, trackID) group is
+  // self-contained for downstream selection.
+  // -----------------------------------------------------------------
+  if (fCurTrackID == trkID && !fCurSteps.empty()) {
+    const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
+    const G4int eventID = evt ? evt->GetEventID() : -1;
+    const G4int nSteps  = (G4int)fCurSteps.size();
+    G4double totalLen = 0., totalEDep = 0.;
+    for (const auto& s : fCurSteps) { totalLen += s.stepLen; totalEDep += s.eDep; }
+
+    for (const auto& s : fCurSteps) {
+      analysisManager->FillNtupleIColumn(0,  0, eventID);
+      analysisManager->FillNtupleIColumn(0,  1, fCurTrackID);
+      analysisManager->FillNtupleIColumn(0,  2, s.stepNum);
+      analysisManager->FillNtupleDColumn(0,  3, fCurEKinInit);
+      analysisManager->FillNtupleDColumn(0,  4, s.kePre);
+      analysisManager->FillNtupleDColumn(0,  5, s.dEdx);
+      analysisManager->FillNtupleDColumn(0,  6, s.x);
+      analysisManager->FillNtupleDColumn(0,  7, s.y);
+      analysisManager->FillNtupleDColumn(0,  8, s.z);
+      analysisManager->FillNtupleDColumn(0,  9, s.stepLen);
+      analysisManager->FillNtupleDColumn(0, 10, s.eDep);
+      analysisManager->FillNtupleDColumn(0, 11, s.cumLen);
+      analysisManager->FillNtupleIColumn(0, 12, nSteps);
+      analysisManager->FillNtupleDColumn(0, 13, totalLen);
+      analysisManager->FillNtupleDColumn(0, 14, totalEDep);
+      analysisManager->FillNtupleDColumn(0, 15, x);
+      analysisManager->FillNtupleDColumn(0, 16, y);
+      analysisManager->FillNtupleDColumn(0, 17, z);
+      analysisManager->FillNtupleDColumn(0, 18, fCurVertex.x() / cm);
+      analysisManager->FillNtupleDColumn(0, 19, fCurVertex.y() / cm);
+      analysisManager->FillNtupleDColumn(0, 20, fCurVertex.z() / cm);
+      analysisManager->FillNtupleDColumn(0, 21, fCurDir.x());
+      analysisManager->FillNtupleDColumn(0, 22, fCurDir.y());
+      analysisManager->FillNtupleDColumn(0, 23, fCurDir.z());
+      analysisManager->AddNtupleRow(0);
+    }
+    fCurSteps.clear();
+    fCurTrackID = -1;  // prevent double-flush
+    fCurEventID = -1;
+  }
 
   trk->SetTrackStatus(fStopAndKill);
 }

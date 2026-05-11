@@ -3,6 +3,7 @@
 #include "MargaritaDetectorConstruct.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
+#include "TROOT.h"
 
 MargaritaRunAction::MargaritaRunAction() : G4UserRunAction(), fHistoManager(0)
 {
@@ -34,5 +35,18 @@ void MargaritaRunAction::EndOfRunAction(const G4Run*)
   if (analysisManager->IsActive()) {
     analysisManager->Write();
     analysisManager->CloseFile();
+
+    auto* det = dynamic_cast<const DetectorConstruction*>(
+        G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+    const bool isCyl = det && det->GetGeometry() == "cyl";
+    const G4String rootFile = isCyl ? "g4marg_cyl.root" : "g4marg.root";
+    const G4String cmd = ".x plotstoppingmuons.C(\"" + rootFile + "\")";
+
+    G4cout << "[Margarita] EndOfRunAction: det=" << (det ? "OK" : "NULL")
+           << " geometry=\"" << (det ? det->GetGeometry() : G4String("?"))
+           << "\" rootFile=" << rootFile
+           << " cmd=" << cmd << G4endl;
+
+    gROOT->ProcessLine(cmd.c_str());
   }
 }

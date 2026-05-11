@@ -41,13 +41,47 @@ void HistoManager::Book()
   id = analysis->CreateH1("h1.5", "Incident: E_{kin}^{init} [MeV];counts", 200, 0., 50.);  // id = 5
   analysis->SetH1Activation(id, true);
 
-  // Stopping power curve: dE/dx [MeV/cm] vs KE [MeV], 1–100 MeV window
+  // Stopping power curve: dE/dx [MeV/cm] vs KE [MeV], 0–100 MeV window
   id = analysis->CreateH2("h2.2",
                           "Stopping Power versus Kinetic Energy;Kinetic Energy [MeV];dE/dx [MeV/cm]",
-                           99, 1., 100.,     // x: KE, 1 MeV/bin
+                           100, 0., 100.,    // x: KE, 1 MeV/bin, starts at 0
                            200, 0., 40.);    // y: dE/dx, covers Bragg peak at low KE
   analysis->SetH2Activation(id, true);
   // id = analysis->CreateH1("h1.4", "Stopping efficiency vs. time", 200, 0., 50.);   // id = 5
   // analysis->SetH1Activation(id, true);
 
+  // ------------------------------------------------------------------
+  // Single-track diagnostic ntuple (per-step records of stopping muons)
+  // Each row = one step of a primary mu- that ultimately stops in the
+  // active volume. Track-level summary fields are repeated on each row
+  // so a single (eventID, trackID) group is self-contained.
+  // ------------------------------------------------------------------
+  analysis->SetNtupleDirectoryName("ntuple");
+  analysis->SetFirstNtupleId(0);
+  analysis->CreateNtuple("stoppingSteps", "Per-step records of stopping muons");
+  analysis->CreateNtupleIColumn("eventID");   // 0
+  analysis->CreateNtupleIColumn("trackID");   // 1
+  analysis->CreateNtupleIColumn("stepNum");   // 2
+  analysis->CreateNtupleDColumn("eKinInit");  // 3  initial KE [MeV]
+  analysis->CreateNtupleDColumn("kePre");     // 4  pre-step KE [MeV]
+  analysis->CreateNtupleDColumn("dEdx");      // 5  per-step dE/dx [MeV/cm]
+  analysis->CreateNtupleDColumn("x");         // 6  post-step x [cm]
+  analysis->CreateNtupleDColumn("y");         // 7  post-step y [cm]
+  analysis->CreateNtupleDColumn("z");         // 8  post-step z [cm]
+  analysis->CreateNtupleDColumn("stepLen");   // 9  step length [cm]
+  analysis->CreateNtupleDColumn("eDep");      // 10 step energy deposit [MeV]
+  analysis->CreateNtupleDColumn("cumLen");    // 11 cumulative path length up to this step [cm]
+  analysis->CreateNtupleIColumn("nSteps");    // 12 total steps for this track
+  analysis->CreateNtupleDColumn("totalLen");  // 13 total track length [cm]
+  analysis->CreateNtupleDColumn("totalEDep"); // 14 total deposited energy [MeV]
+  analysis->CreateNtupleDColumn("stopX");     // 15 stopping x [cm]
+  analysis->CreateNtupleDColumn("stopY");     // 16 stopping y [cm]
+  analysis->CreateNtupleDColumn("stopZ");     // 17 stopping z [cm]
+  analysis->CreateNtupleDColumn("vtxX");      // 18 vertex x [cm]
+  analysis->CreateNtupleDColumn("vtxY");      // 19 vertex y [cm]
+  analysis->CreateNtupleDColumn("vtxZ");      // 20 vertex z [cm]
+  analysis->CreateNtupleDColumn("dirX");      // 21 initial momentum direction x
+  analysis->CreateNtupleDColumn("dirY");      // 22 initial momentum direction y
+  analysis->CreateNtupleDColumn("dirZ");      // 23 initial momentum direction z
+  analysis->FinishNtuple();
 }

@@ -34,13 +34,19 @@ add_custom_target(Simulation DEPENDS g4marg)
 
 
 # ---- Minimal macro support ----
-# Copy all macros from <repo>/macros to build/macros
-file(GLOB MACRO_FILES ${CMAKE_SOURCE_DIR}/macros/*.mac)
+# Always-out-of-date target that re-syncs macros and the plot script on
+# every `make` invocation, even if g4marg itself doesn't need to relink.
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/macros)
-foreach(f ${MACRO_FILES})
-  get_filename_component(name ${f} NAME)
-  configure_file(${f} ${CMAKE_BINARY_DIR}/macros/${name} COPYONLY)
-endforeach()
+add_custom_target(sync_runtime ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/macros
+          ${CMAKE_BINARY_DIR}/macros
+  COMMAND ${CMAKE_COMMAND} -E copy
+          ${CMAKE_SOURCE_DIR}/plotstoppingmuons.C
+          ${CMAKE_BINARY_DIR}/plotstoppingmuons.C
+  COMMENT "Syncing macros and plot script to build directory"
+)
+add_dependencies(g4marg sync_runtime)
 
 # (expects run.mac)
 add_custom_target(run
