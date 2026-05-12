@@ -84,4 +84,20 @@ void HistoManager::Book()
   analysis->CreateNtupleDColumn("dirY");      // 22 initial momentum direction y
   analysis->CreateNtupleDColumn("dirZ");      // 23 initial momentum direction z
   analysis->FinishNtuple();
+
+  // ------------------------------------------------------------------
+  // Incident-muon ntuple (ntupleId = 1).
+  // One row per primary mu- the first time it is seen inside the
+  // active detector volume — i.e. the *denominator* for an absolute
+  // stopping-efficiency map. Vertex (vtxX/Y/Z) and initial KE are
+  // recorded so downstream macros can bin by entry coordinate.
+  // ------------------------------------------------------------------
+  analysis->CreateNtuple("incidentMuons", "One row per incident primary mu- in the detector");
+  analysis->CreateNtupleIColumn("eventID");   // 0
+  analysis->CreateNtupleIColumn("trackID");   // 1
+  analysis->CreateNtupleDColumn("vtxX");      // 2  vertex x [cm]
+  analysis->CreateNtupleDColumn("vtxY");      // 3  vertex y [cm]
+  analysis->CreateNtupleDColumn("vtxZ");      // 4  vertex z [cm]
+  analysis->CreateNtupleDColumn("eKinInit");  // 5  initial KE [MeV]
+  analysis->FinishNtuple();
 }

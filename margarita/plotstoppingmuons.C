@@ -168,7 +168,7 @@ void plotSingleStoppingMuon(TFile* f, const TString& geomLabel, const TString& f
     gL->SetTitle(title3);
     gL->Draw("ALP");
     gL->GetXaxis()->SetLimits(0., 8.);
-    gL->GetYaxis()->SetRangeUser(0., 40.);
+    gL->GetYaxis()->SetRangeUser(0., 60.);
 
     // Metadata box
     TPaveText* pt = new TPaveText(0.50, 0.55, 0.93, 0.90, "NDC");
@@ -270,9 +270,17 @@ void plotstoppingmuons(const char* fname = "g4marg.root")
     TH2D* hSP = (TH2D*)dir->Get("h2.2");
     if (hSP) {
         gStyle->SetPalette(kBird);
+        // Keep the stats box (Entries / Mean x / Mean y / Std Dev x / Std Dev y)
+        // but drop the histogram-name line ("h2.2") at the top of the box.
+        // SetOptStat format is the 9-digit code "ksiourmen": each digit selects
+        // kurtosis, skewness, integral, overflow, underflow, rms, mean, entries,
+        // name (left-to-right). The default is 1111 (n+e+m+r). To drop the name
+        // we use 1110 (e+m+r): Entries, Mean (x & y for 2D), Std Dev (x & y).
+        gStyle->SetOptStat(1110);
         gStyle->SetNumberContours(100);
         TString title = "Stopping Power vs Kinetic Energy #minus #font[62]{" + geomLabel + "}";
         hSP->SetTitle(title);
+        hSP->SetStats(1);                    // ensure the box is drawn
         hSP->GetXaxis()->SetTitle("Initial Kinetic Energy [MeV]");
         hSP->GetYaxis()->SetTitle("dE/dx [MeV/cm]");
         hSP->GetZaxis()->SetTitle("dE/dx [MeV/cm]");

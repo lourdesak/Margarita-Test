@@ -35,10 +35,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     // World placement
     G4VPhysicalVolume* physWorld = new G4PVPlacement(0,G4ThreeVector(0., 0., 0.),logicWorld,"physWorld",0,false,0,true);
 
-    auto* redOutline = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0));
-    redOutline->SetVisibility(true);
-    redOutline->SetForceWireframe(true);
-    logicWorld->SetVisAttributes(redOutline);
+    auto* blueOutline = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0));
+    blueOutline->SetVisibility(true);
+    blueOutline->SetForceWireframe(true);
+    logicWorld->SetVisAttributes(blueOutline);
 
     G4Material* targetMat = nist->FindOrBuildMaterial("G4_WATER");
 

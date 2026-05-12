@@ -44,7 +44,13 @@ add_custom_target(sync_runtime ALL
   COMMAND ${CMAKE_COMMAND} -E copy
           ${CMAKE_SOURCE_DIR}/plotstoppingmuons.C
           ${CMAKE_BINARY_DIR}/plotstoppingmuons.C
-  COMMENT "Syncing macros and plot script to build directory"
+  COMMAND ${CMAKE_COMMAND} -E copy
+          ${CMAKE_SOURCE_DIR}/plotyzspatial.C
+          ${CMAKE_BINARY_DIR}/plotyzspatial.C
+  COMMAND ${CMAKE_COMMAND} -E copy
+          ${CMAKE_SOURCE_DIR}/plotspatial.C
+          ${CMAKE_BINARY_DIR}/plotspatial.C
+  COMMENT "Syncing macros and plot scripts to build directory"
 )
 add_dependencies(g4marg sync_runtime)
 

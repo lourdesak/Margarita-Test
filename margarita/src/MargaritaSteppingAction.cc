@@ -19,6 +19,7 @@ MargaritaSteppingAction::~MargaritaSteppingAction() = default;
 void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
 {
   // Handles
+  G4StepPoint* pre  = aStep->GetPreStepPoint();
   G4StepPoint* post = aStep->GetPostStepPoint();
   G4Track*     trk  = aStep->GetTrack();
 
@@ -33,6 +34,16 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   int idx = -1;
   if      (namePost == "CylPV" || namePost == "BoxPV")  idx = 0;
   else return;
+
+  // Volume at pre-step. We require the step to *start* inside the active
+  // volume so the entry step (pre = air, post = detector boundary) is not
+  // counted — its step length is the path through air from the source plane
+  // to the detector face, which would otherwise inflate the recorded
+  // track length and pollute h2.2 with a zero-eDep, large-stepLen entry.
+  G4VPhysicalVolume* volPre =
+      pre->GetTouchableHandle() ? pre->GetTouchableHandle()->GetVolume() : nullptr;
+  const G4String namePre = volPre ? volPre->GetName() : G4String("");
+  if (namePre != "CylPV" && namePre != "BoxPV") return;
 
   // Particle selection: mu- only (PDG 13)
   const G4int pdg = trk->GetDefinition()->GetPDGEncoding();
@@ -87,6 +98,17 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
       fCurDir      = trk->GetVertexMomentumDirection();
       fCurCumLen   = 0.;
       fCurSteps.clear();
+
+      // [NEW] One row per incident primary mu- entering the active
+      // volume -> denominator ntuple for the absolute (z,x) stopping-
+      // efficiency map. ntupleId = 1 ("incidentMuons").
+      analysisManager->FillNtupleIColumn(1, 0, eventIDbuf);
+      analysisManager->FillNtupleIColumn(1, 1, trkIDbuf);
+      analysisManager->FillNtupleDColumn(1, 2, fCurVertex.x() / cm);
+      analysisManager->FillNtupleDColumn(1, 3, fCurVertex.y() / cm);
+      analysisManager->FillNtupleDColumn(1, 4, fCurVertex.z() / cm);
+      analysisManager->FillNtupleDColumn(1, 5, fCurEKinInit);
+      analysisManager->AddNtupleRow(1);
     }
     if (stepLen > 0.) {
       fCurCumLen += stepLen / cm;
