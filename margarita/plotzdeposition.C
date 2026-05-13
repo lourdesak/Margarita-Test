@@ -26,6 +26,10 @@
 
 void plotzdeposition(const char* fname = "g4marg.root")
 {
+    // Force interactive display so the canvas pops up in addition to
+    // the PNG being saved.
+    gROOT->SetBatch(kFALSE);
+
     // Snapshot current global style so this script never leaks state
     // back into a long-running ROOT session (same convention as
     // plotspatial.C).
@@ -97,7 +101,7 @@ void plotzdeposition(const char* fname = "g4marg.root")
                      "#minus #font[62]{%s};Stopping depth z [cm];Counts",
                      geomLabel.Data()));
     h->GetXaxis()->SetTitleOffset(1.05);
-    h->GetYaxis()->SetTitleOffset(1.20);
+    h->GetYaxis()->SetTitleOffset(1.55);   // pushed further from the axis
     h->GetXaxis()->CenterTitle(true);
     h->GetYaxis()->CenterTitle(true);
     // Optimised ~11 divisions -> integer 1 cm ticks across [-2, 9].
@@ -106,15 +110,20 @@ void plotzdeposition(const char* fname = "g4marg.root")
     TCanvas* c = new TCanvas(Form("cZDep_%s", geomLabel.Data()),
                              Form("Stopping depth (%s)", geomLabel.Data()),
                              800, 600);
-    c->SetLeftMargin(0.13);
+    c->SetLeftMargin(0.16);   // a bit wider so the leftward-pushed
+                              // y-axis title isn't clipped by the pad edge
     c->SetRightMargin(0.05);
     c->SetBottomMargin(0.13);
     c->SetTopMargin(0.10);
     h->Draw("HIST");
 
-    // Headroom for the arrow + label, then commit y-range.
+    // Headroom for the two stacked callouts (7.3 cm diameter + beam
+    // direction), then commit y-range.  yMax was peak*1.15 when only
+    // the diameter callout lived at the top; bumping to 1.35 leaves
+    // room for the beam-direction arrow stacked above it without
+    // moving the diameter callout's absolute height.
     c->Update();
-    const double yMax = h->GetMaximum() * 1.15;
+    const double yMax = h->GetMaximum() * 1.35;
     h->SetMaximum(yMax);
 
     // Dotted reference lines at z = 0 and z = 7.3.
@@ -128,8 +137,10 @@ void plotzdeposition(const char* fname = "g4marg.root")
     mkLine(0.0,    0.0, 0.0,    yMax);     // z = 0
     mkLine(geomHi, 0.0, geomHi, yMax);     // z = 7.3
 
-    // Red double-headed diameter arrow + "7.3 cm" label near the top.
-    const double yArrow = yMax * 0.92;
+    // Red double-headed diameter arrow + "7.3 cm" label.
+    // 0.92 * old_yMax(=peak*1.15) == 0.78 * new_yMax(=peak*1.35), so
+    // this arrow stays at the exact same absolute height as before.
+    const double yArrow = yMax * 0.78;
     TArrow* arr = new TArrow(geomLo, yArrow, geomHi, yArrow, 0.012, "<|>");
     arr->SetLineColor(kRed + 1);
     arr->SetFillColor(kRed + 1);
@@ -142,7 +153,28 @@ void plotzdeposition(const char* fname = "g4marg.root")
     arrLab->SetTextSize(0.032);
     arrLab->SetTextColor(kRed + 1);
     arrLab->SetTextAlign(21);              // center-bottom: above the arrow
-    arrLab->DrawLatex(geomCtr, yArrow + yMax * 0.02, "7.3 cm");
+    arrLab->DrawLatex(geomCtr, yArrow + yMax * 0.018, "7.3 cm");
+
+    // Beam-direction arrow stacked above the diameter callout. Same
+    // style and direction as in plotspatial.C: single-headed black
+    // arrow pointing LEFT, since the beam travels along -z and the
+    // +z entry face sits at the right edge of the geometry outline
+    // (z_display = 7.3 cm). Numerical confirmation: mean stopZ > 0,
+    // mean (dirX, dirY, dirZ) = (0, 0, -1), mean (stop - vtx)_z ~ -9 cm.
+    const double yBeam = yMax * 0.93;
+    TArrow* beam = new TArrow(8.5, yBeam, 5.5, yBeam, 0.020, "|>");
+    beam->SetLineColor(kBlack);
+    beam->SetFillColor(kBlack);
+    beam->SetLineWidth(2);
+    beam->SetAngle(35);
+    beam->Draw();
+
+    TLatex* beamLab = new TLatex();
+    beamLab->SetTextFont(42);
+    beamLab->SetTextSize(0.030);
+    beamLab->SetTextColor(kBlack);
+    beamLab->SetTextAlign(21);
+    beamLab->DrawLatex(0.5 * (8.5 + 5.5), yBeam + yMax * 0.020, "beam direction");
 
     // Bold black "7.3" axis label in NDC, matching plotspatial.C.
     const double xRange = axisHi - axisLo;

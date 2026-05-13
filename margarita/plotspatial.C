@@ -32,6 +32,12 @@
 
 void plotspatial(const char* fname = "g4marg.root")
 {
+    // Force interactive display so canvases pop up in addition to
+    // the PNGs being saved. To run truly headless, invoke
+    // `root -b -l 'plotspatial.C(...)'` -- the explicit -b will
+    // still be honoured if you set it AFTER this line via the CLI.
+    gROOT->SetBatch(kFALSE);
+
     // Snapshot current global style so this script never leaks state
     // back into a long-running ROOT session.
     TStyle* savedStyle = gStyle ? (TStyle*)gStyle->Clone("savedStyleBeforeSpatial")

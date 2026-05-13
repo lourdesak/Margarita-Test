@@ -248,6 +248,9 @@ void plotSingleStoppingMuon(TFile* f, const TString& geomLabel, const TString& f
 void plotstoppingmuons(const char* fname = "g4marg.root")
 {
     gROOT->Reset();
+    // Force interactive display so c1/c2/c3/c4 pop up in addition to
+    // the PNGs being saved.
+    gROOT->SetBatch(kFALSE);
 
     TFile* f = new TFile(fname);
     if (!f || f->IsZombie()) {

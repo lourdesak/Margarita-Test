@@ -50,6 +50,10 @@
 
 void plotzxdeposition(const char* fname = "g4marg.root")
 {
+    // Force interactive display so the canvas pops up in addition to
+    // the PNG being saved.
+    gROOT->SetBatch(kFALSE);
+
     // Snapshot current global style so this script never leaks state
     // back into a long-running ROOT session.
     TStyle* savedStyle = gStyle ? (TStyle*)gStyle->Clone("savedStyleBeforeZXDep")
