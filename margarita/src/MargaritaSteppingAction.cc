@@ -10,6 +10,7 @@
 
 #include "G4AnalysisManager.hh"
 #include <array>
+#include <set>
 
 MargaritaSteppingAction::MargaritaSteppingAction(MargaritaRunAction* run)
 : frunAction(run) {}
@@ -68,10 +69,6 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   const G4double stepLen = aStep->GetStepLength();
   const G4double eDep    = aStep->GetTotalEnergyDeposit();
   const G4double eKinPre = aStep->GetPreStepPoint()->GetKineticEnergy();
-  const G4double postKE  = post->GetKineticEnergy();
-  const G4bool   stopped = (postKE < 1.0 * keV);
-  const G4bool   exiting = (trk->GetNextVolume() == nullptr ||
-                            trk->GetNextVolume()->GetName() != namePost);
 
   if (stepLen > 0. && eDep > 0.)
     analysisManager->FillH2(2, eKinPre/MeV, eDep/stepLen/(MeV/cm));
@@ -128,9 +125,7 @@ void MargaritaSteppingAction::UserSteppingAction(const G4Step* aStep)
   }
 
   // --- Stop detection ---
-  // Already counted this track — skip
   const G4int trkID = trk->GetTrackID();
-  if (fStoppedTrackIDs.count(trkID)) return;
 
   // Stop condition: KE ~ 0 (at post-step) inside one of the cylinders
   const G4double eKinPost_step = post->GetKineticEnergy();

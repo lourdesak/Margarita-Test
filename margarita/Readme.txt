@@ -19,8 +19,8 @@ Beam -> Physics List -> Detector Geom -> Histograms
 
     /gps/ene/type Lin
     /gps/ene/min 1 MeV
-    /gps/ene/max 25 MeV
-    /gps/ene/gradient 1
+    /gps/ene/max 100 MeV
+    /gps/ene/gradient 0
     /gps/ene/intercept 1
     ========================
     
@@ -42,9 +42,14 @@ Beam -> Physics List -> Detector Geom -> Histograms
 ------------------------------------------------------------------
   DETECTOR GEOMETRY
   
+  A non-sensitive water target placed in an air world volume. The target
+  shape is selectable at runtime via /margarita/detectorGeometry box|cyl
+  (default: box). Both variants are 7.3 cm across in each dimension:
+   * box (G4Box, BoxPV):  7.3 cm cube of water.
+   * cyl (G4Tubs, CylPV): radius 3.65 cm, length 7.3 cm, rotated so the
+                          cylinder axis lies along Y.
+
   Files involved:
-  A simple non-sensitive cylinder filled with water placed in a world-volume of air (G4Tubs)
-  
   1. MargaritaDetectorConstruct.cc
   2. MargaritaDetectorConstruct.hh
   

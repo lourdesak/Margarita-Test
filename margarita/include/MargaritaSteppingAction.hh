@@ -4,7 +4,6 @@
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 #include "G4ThreeVector.hh"
-#include <set>
 #include <vector>
 
 class G4Step;
@@ -16,11 +15,9 @@ public:
     ~MargaritaSteppingAction();
 
     void UserSteppingAction(const G4Step* step) override;
-    void ClearStoppedTracks() { fStoppedTrackIDs.clear(); }
 
 private:
     MargaritaRunAction* frunAction = nullptr;
-    std::set<G4int> fStoppedTrackIDs;
 
     // ---- Per-track step buffer for single-track diagnostic ----
     // We accumulate every step of a primary mu- inside the active volume.
